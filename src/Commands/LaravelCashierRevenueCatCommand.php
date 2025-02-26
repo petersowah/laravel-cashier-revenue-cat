@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace PeterSowah\LaravelCashierRevenueCat\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaravelCashierRevenueCatCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-cashier-revenue-cat';
 
     public $description = 'My command';
 
