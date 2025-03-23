@@ -1,9 +1,13 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
+use PeterSowah\LaravelCashierRevenueCat\Tests\TestCase;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Route::post('revenuecat/webhook', [WebhookController::class, 'handleWebhook'])

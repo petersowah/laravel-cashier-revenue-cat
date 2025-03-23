@@ -2,9 +2,15 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
 
+/**
+ * @property string $revenuecat_id
+ * @property string $store
+ */
 class Customer extends Model
 {
     protected $table = 'customers';
@@ -19,11 +25,17 @@ class Customer extends Model
         return $this->morphTo();
     }
 
+    /**
+     * @return Collection<int, Subscription>
+     */
     public function subscriptions()
     {
         return $this->billable->subscriptions();
     }
 
+    /**
+     * @return Collection<int, Receipt>
+     */
     public function receipts()
     {
         return $this->billable->receipts();

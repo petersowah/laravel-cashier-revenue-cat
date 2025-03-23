@@ -5,6 +5,12 @@ namespace PeterSowah\LaravelCashierRevenueCat;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $subscription_id
+ * @property string $product_id
+ * @property string $price_id
+ * @property int $quantity
+ */
 class SubscriptionItem extends Model
 {
     protected $table = 'subscription_items';
@@ -14,6 +20,10 @@ class SubscriptionItem extends Model
         'product_id',
         'price_id',
         'quantity',
+    ];
+
+    protected $casts = [
+        'quantity' => 'integer',
     ];
 
     public function subscription(): BelongsTo

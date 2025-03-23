@@ -2,16 +2,16 @@
 
 // config for PeterSowah/LaravelCashierRevenueCat
 return [
-    'api_key' => env('REVENUECAT_API_KEY'),
+    'api_key' => config('services.revenuecat.api_key'),
 
     'webhook' => [
-        'secret' => env('REVENUECAT_WEBHOOK_SECRET'),
-        'tolerance' => env('REVENUECAT_WEBHOOK_TOLERANCE', 300),
+        'secret' => config('services.revenuecat.webhook.secret'),
+        'tolerance' => config('services.revenuecat.webhook.tolerance', 300),
     ],
 
-    'currency' => env('CASHIER_CURRENCY', 'USD'),
+    'currency' => config('services.revenuecat.currency', 'USD'),
 
     'model' => [
-        'user' => env('CASHIER_MODEL', \App\Models\User::class),
+        'user' => config('auth.providers.users.model', \App\Models\User::class),
     ],
 ];
