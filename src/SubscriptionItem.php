@@ -23,7 +23,14 @@ class SubscriptionItem extends Model
     ];
 
     protected $casts = [
+        'subscription_id' => 'integer',
+        'product_id' => 'string',
+        'price_id' => 'string',
         'quantity' => 'integer',
+    ];
+
+    protected $attributes = [
+        'quantity' => 1,
     ];
 
     public function subscription(): BelongsTo

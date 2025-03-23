@@ -4,19 +4,29 @@ namespace PeterSowah\LaravelCashierRevenueCat;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
 
 /**
  * @property string $revenuecat_id
  * @property string $store
+ * @property-read Model|null $billable
  */
 class Customer extends Model
 {
+    use Billable;
+
     protected $table = 'customers';
 
     protected $fillable = [
         'revenuecat_id',
         'store',
+    ];
+
+    protected $casts = [
+        'revenuecat_id' => 'string',
+        'store' => 'string',
     ];
 
     public function billable(): MorphTo
@@ -25,18 +35,28 @@ class Customer extends Model
     }
 
     /**
-     * @return Collection<int, Subscription>
+     * @return Collection<int, Subscription>|null
      */
     public function subscriptions()
     {
-        return $this->billable->subscriptions();
+        /** @var Model|null $billable */
+        $billable = $this->billable;
+        if (!$billable || !method_exists($billable, 'subscriptions')) {
+            return null;
+        }
+        return $billable->subscriptions()->get();
     }
 
     /**
-     * @return Collection<int, Receipt>
+     * @return Collection<int, Receipt>|null
      */
     public function receipts()
     {
-        return $this->billable->receipts();
+        /** @var Model|null $billable */
+        $billable = $this->billable;
+        if (!$billable || !method_exists($billable, 'receipts')) {
+            return null;
+        }
+        return $billable->receipts()->get();
     }
 }

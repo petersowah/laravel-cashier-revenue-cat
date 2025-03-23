@@ -12,6 +12,6 @@ return [
     'currency' => config('services.revenuecat.currency', 'USD'),
 
     'model' => [
-        'user' => config('auth.providers.users.model', \App\Models\User::class),
+        'user' => config('auth.providers.users.model', \Illuminate\Foundation\Auth\User::class),
     ],
 ];

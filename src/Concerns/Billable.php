@@ -9,7 +9,10 @@ use PeterSowah\LaravelCashierRevenueCat\Receipt;
 use PeterSowah\LaravelCashierRevenueCat\Subscription;
 
 /**
- * @property-read \PeterSowah\LaravelCashierRevenueCat\Customer|null $customer
+ * @property-read Customer|null $customer
+ * @property-read string|null $revenuecat_id
+ * @method MorphMany subscriptions()
+ * @method MorphMany receipts()
  */
 trait Billable
 {
@@ -38,7 +41,7 @@ trait Billable
      */
     public function subscription(?string $name = 'default'): ?Subscription
     {
-        /** @var \PeterSowah\LaravelCashierRevenueCat\Subscription|null */
+        /** @var Subscription|null */
         return $this->subscriptions()->where('name', $name)->first();
     }
 
@@ -68,11 +71,11 @@ trait Billable
     public function createAsRevenueCatCustomer(array $attributes = []): Customer
     {
         if ($this->hasRevenueCatId()) {
-            /** @var \PeterSowah\LaravelCashierRevenueCat\Customer */
+            /** @var Customer */
             return $this->customer;
         }
 
-        /** @var \PeterSowah\LaravelCashierRevenueCat\Customer */
+        /** @var Customer */
         return $this->customer()->create($attributes);
     }
 

@@ -35,6 +35,17 @@ class Subscription extends Model
     protected $casts = [
         'trial_ends_at' => 'datetime',
         'ends_at' => 'datetime',
+        'status' => 'string',
+        'name' => 'string',
+        'revenuecat_id' => 'string',
+        'price_id' => 'string',
+        'product_id' => 'string',
+    ];
+
+    protected $attributes = [
+        'status' => 'active',
+        'trial_ends_at' => null,
+        'ends_at' => null,
     ];
 
     public function billable(): MorphTo
@@ -81,7 +92,7 @@ class Subscription extends Model
     {
         $endsAt = $endsAt ? Carbon::instance($endsAt) : Carbon::now();
 
-        $this->ends_at = $endsAt;
+        $this->ends_at = Carbon::instance($endsAt);
         $this->save();
 
         return $this;

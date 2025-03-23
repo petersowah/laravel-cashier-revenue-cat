@@ -33,6 +33,16 @@ class Receipt extends Model
     protected $casts = [
         'purchased_at' => 'datetime',
         'amount' => 'integer',
+        'currency' => 'string',
+        'revenuecat_id' => 'string',
+        'product_id' => 'string',
+        'price_id' => 'string',
+        'store' => 'string',
+    ];
+
+    protected $attributes = [
+        'amount' => 0,
+        'currency' => 'USD',
     ];
 
     public function billable(): MorphTo
