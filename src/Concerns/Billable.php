@@ -35,9 +35,6 @@ trait Billable
 
     /**
      * Get a subscription instance by name for the billable model.
-     *
-     * @param string|null $name
-     * @return \PeterSowah\LaravelCashierRevenueCat\Subscription|null
      */
     public function subscription(?string $name = 'default'): ?Subscription
     {
@@ -57,8 +54,6 @@ trait Billable
 
     /**
      * Determine if the billable model has a RevenueCat ID.
-     *
-     * @return bool
      */
     public function hasRevenueCatId(): bool
     {
@@ -68,8 +63,7 @@ trait Billable
     /**
      * Create a RevenueCat customer for the billable model.
      *
-     * @param array<string, mixed> $attributes
-     * @return \PeterSowah\LaravelCashierRevenueCat\Customer
+     * @param  array<string, mixed>  $attributes
      */
     public function createAsRevenueCatCustomer(array $attributes = []): Customer
     {
@@ -84,8 +78,6 @@ trait Billable
 
     /**
      * Get the RevenueCat customer ID for the billable model.
-     *
-     * @return string|null
      */
     public function revenueCatId(): ?string
     {

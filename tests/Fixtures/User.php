@@ -25,18 +25,14 @@ class User extends Model
 
     /**
      * Get the RevenueCat app user identifier.
-     *
-     * @return string
      */
     public function getRevenueCatAppUserId(): string
     {
-        return 'test_user_' . $this->id;
+        return 'test_user_'.$this->id;
     }
 
     /**
      * Get the store platform for this user.
-     *
-     * @return string|null
      */
     public function getStorePlatform(): ?string
     {
@@ -56,4 +52,4 @@ class User extends Model
             'platform' => $this->getStorePlatform(),
         ];
     }
-} 
+}
