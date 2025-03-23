@@ -2,11 +2,11 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat\Concerns;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use PeterSowah\LaravelCashierRevenueCat\Customer;
 use PeterSowah\LaravelCashierRevenueCat\Receipt;
 use PeterSowah\LaravelCashierRevenueCat\Subscription;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait Billable
 {
@@ -43,4 +43,4 @@ trait Billable
 
         return $this->customer()->create($attributes);
     }
-} 
+}

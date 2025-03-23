@@ -28,4 +28,4 @@ class Customer extends Model
     {
         return $this->billable->receipts();
     }
-} 
+}

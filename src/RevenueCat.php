@@ -9,7 +9,9 @@ use PeterSowah\LaravelCashierRevenueCat\Exceptions\RevenueCatException;
 class RevenueCat
 {
     protected string $apiKey;
+
     protected string $baseUrl = 'https://api.revenuecat.com/v1';
+
     protected HttpClient $client;
 
     public function __construct(string $apiKey)
@@ -21,6 +23,7 @@ class RevenueCat
     public function setClient(HttpClient $client): self
     {
         $this->client = $client;
+
         return $this;
     }
 
@@ -44,7 +47,7 @@ class RevenueCat
 
     public function createSubscriber(string $appUserId, array $attributes = []): array
     {
-        return $this->post("/subscribers", array_merge(['app_user_id' => $appUserId], $attributes));
+        return $this->post('/subscribers', array_merge(['app_user_id' => $appUserId], $attributes));
     }
 
     public function updateSubscriber(string $appUserId, array $attributes): array
@@ -57,12 +60,13 @@ class RevenueCat
         return $this->delete("/subscribers/{$appUserId}");
     }
 
-    public function getOfferings(string $appUserId = null): array
+    public function getOfferings(?string $appUserId = null): array
     {
         $uri = '/offerings';
         if ($appUserId) {
             $uri .= "?app_user_id={$appUserId}";
         }
+
         return $this->get($uri);
     }
 
@@ -103,4 +107,4 @@ class RevenueCat
             throw new RevenueCatException($e->getMessage(), $e->getCode(), $e);
         }
     }
-} 
+}

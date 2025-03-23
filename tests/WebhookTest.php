@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
-use PeterSowah\LaravelCashierRevenueCat\Tests\TestCase;
 
 beforeEach(function () {
     Route::post('revenuecat/webhook', [WebhookController::class, 'handleWebhook'])
@@ -71,4 +70,4 @@ test('it rejects invalid webhook signatures', function () {
     ]);
 
     $response->assertStatus(403);
-}); 
+});

@@ -12,13 +12,14 @@ use PHPUnit\Framework\Attributes\Test;
 class RevenueCatTest extends TestCase
 {
     protected RevenueCat $revenueCat;
+
     protected MockHandler $mockHandler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->mockHandler = new MockHandler();
+        $this->mockHandler = new MockHandler;
         $handlerStack = HandlerStack::create($this->mockHandler);
         $client = new Client(['handler' => $handlerStack]);
 
@@ -98,4 +99,4 @@ class RevenueCatTest extends TestCase
         $this->assertArrayHasKey('products', $response);
         $this->assertEquals('test-product', $response['products'][0]['identifier']);
     }
-} 
+}

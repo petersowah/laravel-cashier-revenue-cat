@@ -34,4 +34,4 @@ class Receipt extends Model
     {
         return new Money($this->amount, new Currency($this->currency));
     }
-} 
+}

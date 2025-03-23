@@ -15,4 +15,4 @@ class WebhookReceived
     {
         $this->payload = $payload;
     }
-} 
+}

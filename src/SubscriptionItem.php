@@ -38,4 +38,4 @@ class SubscriptionItem extends Model
     {
         return $this->updateQuantity($this->quantity - $amount);
     }
-} 
+}

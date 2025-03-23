@@ -40,4 +40,4 @@ class VerifyWebhookSignature
 
         return hash_equals($computedSignature, $signature);
     }
-} 
+}
