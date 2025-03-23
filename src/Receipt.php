@@ -7,6 +7,15 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Money\Currency;
 use Money\Money;
 
+/**
+ * @property string $revenuecat_id
+ * @property string $product_id
+ * @property string $price_id
+ * @property string $store
+ * @property string $currency
+ * @property int $amount
+ * @property \Carbon\Carbon $purchased_at
+ */
 class Receipt extends Model
 {
     protected $table = 'receipts';
@@ -23,6 +32,7 @@ class Receipt extends Model
 
     protected $casts = [
         'purchased_at' => 'datetime',
+        'amount' => 'integer',
     ];
 
     public function billable(): MorphTo

@@ -7,7 +7,17 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use LogicException;
 
+/**
+ * @property string $name
+ * @property string $revenuecat_id
+ * @property string $status
+ * @property string $price_id
+ * @property string $product_id
+ * @property \Carbon\Carbon|null $trial_ends_at
+ * @property \Carbon\Carbon|null $ends_at
+ */
 class Subscription extends Model
 {
     protected $table = 'subscriptions';
@@ -69,7 +79,7 @@ class Subscription extends Model
 
     public function cancel(?DateTimeInterface $endsAt = null): self
     {
-        $endsAt = $endsAt ?: Carbon::now();
+        $endsAt = $endsAt ? Carbon::instance($endsAt) : Carbon::now();
 
         $this->ends_at = $endsAt;
         $this->save();
