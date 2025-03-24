@@ -17,7 +17,7 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('laravel-cashier-revenue-cat')
-            ->hasConfigFile()
+            ->hasConfigFile('cashier-revenue-cat')
             ->hasViews()
             ->hasMigration('create_cashier_revenuecat_tables')
             ->hasRoute('webhooks')
