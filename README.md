@@ -26,7 +26,7 @@ composer require petersowah/laravel-cashier-revenue-cat
 1. Publish the configuration file:
 
 ```bash
-php artisan vendor:publish --tag="cashier-revenuecat-config"
+php artisan vendor:publish --tag="cashier-revenue-cat-config"
 ```
 
 2. Add your RevenueCat API keys to your `.env` file:
