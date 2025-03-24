@@ -29,7 +29,19 @@ composer require petersowah/laravel-cashier-revenue-cat
 php artisan vendor:publish --tag="cashier-revenue-cat-config"
 ```
 
-2. Add your RevenueCat API keys to your `.env` file:
+2. Publish the migration files:
+
+```bash
+php artisan vendor:publish --tag="cashier-revenue-cat-migrations"
+```
+
+3. Run the migrations:
+
+```bash
+php artisan migrate
+```
+
+4. Add your RevenueCat API keys to your `.env` file:
 
 ```env
 REVENUE_CAT_PUBLIC_KEY=your_public_key
