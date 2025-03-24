@@ -26,10 +26,10 @@
         "illuminate/database": "^10.0||^11.0||^12.0",
         "illuminate/http": "^10.0||^11.0||^12.0",
         "illuminate/support": "^10.0||^11.0||^12.0",
-        "laravel/framework": "10.*",
+        "laravel/framework": "^12.0",
         "moneyphp/money": "^4.0",
         "nesbot/carbon": "^2.67||^3.0",
-        "orchestra/testbench": "8.*",
+        "orchestra/testbench": "^10.0",
         "spatie/laravel-package-tools": "^1.16",
         "symfony/http-kernel": "^6.2||^7.0"
     },
@@ -37,10 +37,9 @@
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.1.1||^7.10.0",
         "larastan/larastan": "^2.9||^3.0",
-        "orchestra/testbench": "^10.0",
-        "pestphp/pest": "^2.0||^3.0",
-        "pestphp/pest-plugin-arch": "^2.0||^3.0",
-        "pestphp/pest-plugin-laravel": "^2.0||^3.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-arch": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
         "phpstan/extension-installer": "^1.3||^2.0",
         "phpstan/phpstan-deprecation-rules": "^1.1||^2.0",
         "phpstan/phpstan-phpunit": "^1.3||^2.0"
@@ -69,7 +68,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "pestphp/pest-plugin-arch": true
         }
     },
     "extra": {
