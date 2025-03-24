@@ -4,7 +4,6 @@ namespace PeterSowah\LaravelCashierRevenueCat;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
 
@@ -41,9 +40,10 @@ class Customer extends Model
     {
         /** @var Model|null $billable */
         $billable = $this->billable;
-        if (!$billable || !method_exists($billable, 'subscriptions')) {
+        if (! $billable || ! method_exists($billable, 'subscriptions')) {
             return null;
         }
+
         return $billable->subscriptions()->get();
     }
 
@@ -54,9 +54,10 @@ class Customer extends Model
     {
         /** @var Model|null $billable */
         $billable = $this->billable;
-        if (!$billable || !method_exists($billable, 'receipts')) {
+        if (! $billable || ! method_exists($billable, 'receipts')) {
             return null;
         }
+
         return $billable->receipts()->get();
     }
 }

@@ -11,6 +11,7 @@ use PeterSowah\LaravelCashierRevenueCat\Subscription;
 /**
  * @property-read Customer|null $customer
  * @property-read string|null $revenuecat_id
+ *
  * @method MorphMany subscriptions()
  * @method MorphMany receipts()
  */
