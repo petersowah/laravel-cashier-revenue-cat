@@ -31,7 +31,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Only create indexes if they don't exist
-            if (!Schema::hasTable('subscriptions') || !Schema::hasColumn('subscriptions', 'billable_type')) {
+            if (! Schema::hasTable('subscriptions') || ! Schema::hasColumn('subscriptions', 'billable_type')) {
                 $table->index(['billable_type', 'billable_id']);
             }
             $table->index('status');
