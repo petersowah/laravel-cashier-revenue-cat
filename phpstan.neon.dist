@@ -13,3 +13,6 @@ parameters:
     ignoreErrors:
         - '#Method .+::(customer|subscriptions|receipts)\(\) should return .+ but returns .+#'
         - '#Call to an undefined method (Pest\\PendingCalls\\TestCall|PHPUnit\\Framework\\TestCase)::.+#'
+    excludePaths:
+        analyseAndScan:
+            - config/revenuecat.php (?)
