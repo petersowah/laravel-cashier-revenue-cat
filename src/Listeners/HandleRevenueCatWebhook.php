@@ -143,4 +143,4 @@ class HandleRevenueCatWebhook
         // Handle subscription period changed
         Log::info('Handling subscription period changed', ['payload' => $payload]);
     }
-} 
+}
