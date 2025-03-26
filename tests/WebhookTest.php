@@ -2,17 +2,13 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat\Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
-use Orchestra\Testbench\TestCase;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
 
 class WebhookTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -24,6 +20,7 @@ class WebhookTest extends TestCase
 
     protected function defineEnvironment($app)
     {
+        parent::getEnvironmentSetUp($app);
         $app['config']->set('cashier-revenue-cat.webhook.secret', 'test-secret');
     }
 
