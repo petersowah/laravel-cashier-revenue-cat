@@ -28,8 +28,14 @@ return new class extends Migration
             $table->string('status');
             $table->string('price_id');
             $table->string('product_id');
+            $table->string('period_type')->nullable();
             $table->timestamp('trial_ends_at')->nullable();
             $table->timestamp('ends_at')->nullable();
+            $table->timestamp('latest_purchase_date')->nullable();
+            $table->timestamp('original_purchase_date')->nullable();
+            $table->timestamp('expiration_date')->nullable();
+            $table->boolean('will_renew')->default(true);
+            $table->boolean('is_sandbox')->default(false);
             $table->timestamps();
 
             $table->index(['billable_id', 'billable_type']);
@@ -46,6 +52,9 @@ return new class extends Migration
             $table->string('currency');
             $table->integer('amount');
             $table->timestamp('purchased_at');
+            $table->string('transaction_id')->nullable();
+            $table->string('original_transaction_id')->nullable();
+            $table->boolean('is_sandbox')->default(false);
             $table->timestamps();
 
             $table->index(['billable_id', 'billable_type']);
@@ -57,6 +66,8 @@ return new class extends Migration
             $table->string('billable_type');
             $table->string('revenuecat_id')->unique();
             $table->string('store')->nullable();
+            $table->json('entitlements')->nullable();
+            $table->json('non_subscriptions')->nullable();
             $table->timestamps();
 
             $table->index(['billable_id', 'billable_type']);

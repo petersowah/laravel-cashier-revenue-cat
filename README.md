@@ -7,11 +7,13 @@ A Laravel Cashier driver for RevenueCat, providing seamless integration with Rev
 
 ## Features
 
-- Easy integration with RevenueCat's API
+- Easy integration with RevenueCat's API V2
 - Webhook handling for subscription events
 - Support for both iOS and Android subscriptions
 - Secure webhook signature verification
 - Event-driven architecture for subscription management
+- Support for entitlements management
+- Support for non-subscription purchases
 
 ## Installation
 
@@ -41,15 +43,52 @@ php artisan vendor:publish --tag="cashier-revenue-cat-migrations"
 php artisan migrate
 ```
 
-4. Add your RevenueCat API keys to your `.env` file:
+4. Configure your environment variables:
+
+Copy the `.env.example` file to `.env` and update the values:
 
 ```env
-REVENUE_CAT_PUBLIC_KEY=your_public_key
-REVENUE_CAT_SECRET_KEY=your_secret_key
-REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret # Optional, for webhook signature verification
+# Required Configuration
+REVENUE_CAT_PUBLIC_KEY=your_public_key_here
+REVENUE_CAT_SECRET_KEY=your_secret_key_here
+REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
+
+# Optional Configuration
+REVENUE_CAT_WEBHOOK_URL=/revenue-cat/webhook
+REVENUE_CAT_API_VERSION=v2
+REVENUE_CAT_API_BASE_URL=https://api.revenuecat.com
+REVENUE_CAT_WEBHOOK_ENABLED=true
+REVENUE_CAT_WEBHOOK_QUEUE=default
+REVENUE_CAT_CACHE_TTL=3600
+REVENUE_CAT_CACHE_ENABLED=true
+REVENUE_CAT_LOG_LEVEL=debug
+REVENUE_CAT_LOG_ENABLED=true
+REVENUE_CAT_THROW_ON_ERROR=true
+REVENUE_CAT_RETRY_ON_ERROR=true
+REVENUE_CAT_MAX_RETRIES=3
 ```
 
-3. Update your `User` model to use the RevenueCat Billable trait:
+### Environment Variables
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `REVENUE_CAT_PUBLIC_KEY` | Your RevenueCat public API key | Yes | - |
+| `REVENUE_CAT_SECRET_KEY` | Your RevenueCat secret API key | Yes | - |
+| `REVENUE_CAT_WEBHOOK_SECRET` | Secret for webhook signature verification | Yes | - |
+| `REVENUE_CAT_WEBHOOK_URL` | URL path for webhook endpoint | No | `/revenue-cat/webhook` |
+| `REVENUE_CAT_API_VERSION` | RevenueCat API version | No | `v2` |
+| `REVENUE_CAT_API_BASE_URL` | RevenueCat API base URL | No | `https://api.revenuecat.com` |
+| `REVENUE_CAT_WEBHOOK_ENABLED` | Enable/disable webhook handling | No | `true` |
+| `REVENUE_CAT_WEBHOOK_QUEUE` | Queue for webhook processing | No | `default` |
+| `REVENUE_CAT_CACHE_TTL` | Cache time to live in seconds | No | `3600` |
+| `REVENUE_CAT_CACHE_ENABLED` | Enable/disable caching | No | `true` |
+| `REVENUE_CAT_LOG_LEVEL` | Logging level (debug, info, warning, error) | No | `debug` |
+| `REVENUE_CAT_LOG_ENABLED` | Enable/disable logging | No | `true` |
+| `REVENUE_CAT_THROW_ON_ERROR` | Throw exceptions on API errors | No | `true` |
+| `REVENUE_CAT_RETRY_ON_ERROR` | Retry failed API calls | No | `true` |
+| `REVENUE_CAT_MAX_RETRIES` | Maximum number of retries | No | `3` |
+
+5. Update your `User` model to use the RevenueCat Billable trait:
 
 ```php
 use PeterSowah\LaravelCashierRevenueCat\Billable;
@@ -87,10 +126,13 @@ Purchases.shared.getOfferings { (offerings, error) in
 }
 
 // Make a purchase
-Purchases.shared.purchase(package: package) { (transaction, purchaserInfo, error, userCancelled) in
-    if let purchaserInfo = purchaserInfo {
+Purchases.shared.purchase(package: package) { (transaction, customerInfo, error, userCancelled) in
+    if let customerInfo = customerInfo {
         // Purchase successful
-        // Your Laravel webhook will be notified automatically
+        // Check entitlements
+        if customerInfo.entitlements["premium"]?.isActive == true {
+            // Premium features are active
+        }
     }
 }
 ```
@@ -124,9 +166,12 @@ Purchases.sharedInstance.getOfferings({ offerings ->
 Purchases.sharedInstance.purchasePackage(
     activity,
     package
-) { purchaseResult ->
+) { customerInfo ->
     // Purchase successful
-    // Your Laravel webhook will be notified automatically
+    // Check entitlements
+    if (customerInfo.entitlements["premium"]?.isActive == true) {
+        // Premium features are active
+    }
 }
 ```
 
@@ -165,7 +210,7 @@ try {
 // When user selects a package to purchase
 try {
   CustomerInfo customerInfo = await Purchases.purchasePackage(package);
-  if (customerInfo.entitlements.active.containsKey('your_entitlement_id')) {
+  if (customerInfo.entitlements.active.containsKey('premium')) {
     // Purchase successful
     // The webhook will handle the rest
   }
@@ -174,176 +219,30 @@ try {
 }
 ```
 
-## Complete Example Scenario
-
-Here's a complete example of implementing subscriptions in a Flutter mobile app with Laravel backend:
-
-### 1. Backend Setup
-
-1. Install the package:
-```bash
-composer require petersowah/laravel-cashier-revenue-cat
-```
-
-2. Configure environment variables:
-```env
-REVENUECAT_API_KEY=your_secret_key
-REVENUECAT_WEBHOOK_SECRET=your_webhook_secret
-```
-
-3. Set up your User model:
-```php
-use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
-
-class User extends Authenticatable
-{
-    use Billable;
-}
-```
-
-### 2. Flutter Implementation
-
-1. Initialize RevenueCat in your app:
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Purchases.setLogLevel(LogLevel.debug);
-  await Purchases.configure(PurchasesConfiguration("your_public_key"));
-  runApp(MyApp());
-}
-```
-
-2. Create a subscription service:
-```dart
-class SubscriptionService {
-  Future<void> login(String userId) async {
-    await Purchases.logIn(userId);
-  }
-
-  Future<List<Package>> getPackages() async {
-    try {
-      Offerings offerings = await Purchases.getOfferings();
-      return offerings.current?.availablePackages ?? [];
-    } catch (e) {
-      print('Error getting packages: $e');
-      return [];
-    }
-  }
-
-  Future<bool> purchasePackage(Package package) async {
-    try {
-      CustomerInfo customerInfo = await Purchases.purchasePackage(package);
-      return customerInfo.entitlements.active.isNotEmpty;
-    } catch (e) {
-      print('Error purchasing package: $e');
-      return false;
-    }
-  }
-}
-```
-
-### 3. Backend Webhook Handling
-
-1. Create a webhook listener:
-```php
-class HandleRevenueCatWebhook
-{
-    public function handle(WebhookReceived $event)
-    {
-        $payload = $event->payload;
-        
-        switch ($payload['type']) {
-            case 'INITIAL_PURCHASE':
-                $this->handleInitialPurchase($payload);
-                break;
-            case 'RENEWAL':
-                $this->handleRenewal($payload);
-                break;
-            case 'CANCELLATION':
-                $this->handleCancellation($payload);
-                break;
-        }
-    }
-
-    private function handleInitialPurchase(array $payload)
-    {
-        $user = User::where('revenuecat_id', $payload['app_user_id'])->first();
-        if ($user) {
-            // Update user's subscription status
-            $user->subscription()->create([
-                'name' => 'default',
-                'revenuecat_id' => $payload['subscription_id'],
-                'status' => 'active',
-                'price_id' => $payload['price_id'],
-                'product_id' => $payload['product_id']
-            ]);
-        }
-    }
-}
-```
-
-### 4. Checking Subscription Status
-
-In your Laravel backend:
-```php
-// Check active subscription
-if ($user->subscription()->active()) {
-    // Grant access to premium features
-}
-
-// Check trial status
-if ($user->subscription()->onTrial()) {
-    // Handle trial-specific logic
-}
-
-// Get all user's subscriptions
-$subscriptions = $user->subscriptions;
-
-// Get purchase receipts
-$receipts = $user->receipts;
-```
-
-In your Flutter app:
-```dart
-Future<bool> checkSubscriptionStatus() async {
-  try {
-    CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-    return customerInfo.entitlements.active.containsKey('your_entitlement_id');
-  } catch (e) {
-    print('Error checking subscription status: $e');
-    return false;
-  }
-}
-```
-
-### 5. Error Handling
-
-The package includes built-in exception handling:
-```php
-try {
-    // Your RevenueCat operations
-} catch (RevenueCatException $e) {
-    // Handle API errors
-} catch (WebhookSignatureException $e) {
-    // Handle webhook signature verification failures
-}
-```
-
-This complete example demonstrates:
-- Flutter app integration
-- Laravel backend setup
-- Webhook handling
-- Subscription status management
-- Error handling
-- Security best practices
-
 ## Laravel Backend Usage
 
 ### Managing Subscribers
 
 ```php
 // Get subscriber information
-$user->subscription()->getSubscriber();
+$subscriber = $user->subscription()->getSubscriber();
+
+// Get subscriber's entitlements
+$entitlements = $user->getEntitlements();
+
+// Check if user has specific entitlement
+if ($user->hasEntitlement('premium')) {
+    // User has premium access
+}
+
+// Get current offering
+$offering = $user->getCurrentOffering();
+
+// Get subscription history
+$history = $user->getSubscriptionHistory();
+
+// Get non-subscription purchases
+$purchases = $user->getNonSubscriptions();
 
 // Create a subscriber
 $user->subscription()->createSubscriber([
@@ -371,9 +270,13 @@ https://your-app.com/revenue-cat/webhook
 - Initial Purchase
 - Renewal
 - Cancellation
-- Expiration
+- Subscription Paused
+- Subscription Resumed
 - Product Change
+- Billing Issue
 - Refund
+- Non-Renewing Purchase
+- Subscription Period Changed
 
 3. Listen to webhook events in your application:
 
@@ -391,8 +294,22 @@ protected $listen = [
 ```php
 public function handle(WebhookReceived $event)
 {
-    if ($event->payload['type'] === 'INITIAL_PURCHASE') {
-        // Handle initial purchase
+    $payload = $event->payload;
+    $eventType = $payload['event']['type'];
+    $subscriber = $payload['event']['subscriber'];
+    $entitlements = $subscriber['entitlements'];
+
+    switch ($eventType) {
+        case 'INITIAL_PURCHASE':
+            // Handle initial purchase
+            break;
+        case 'RENEWAL':
+            // Handle renewal
+            break;
+        case 'CANCELLATION':
+            // Handle cancellation
+            break;
+        // ... handle other events
     }
 }
 ```

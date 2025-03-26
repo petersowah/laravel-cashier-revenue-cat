@@ -27,7 +27,15 @@ abstract class TestCase extends Orchestra
 
     public function getEnvironmentSetUp($app): void
     {
+        // Use SQLite in memory for testing
         config()->set('database.default', 'testing');
+        config()->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        // Package configuration
         config()->set('cashier-revenue-cat.api_key', 'test-api-key');
         config()->set('cashier-revenue-cat.webhook.secret', 'test-webhook-secret');
         config()->set('cashier-revenue-cat.model.user', User::class);
