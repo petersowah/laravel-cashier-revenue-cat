@@ -9,10 +9,11 @@ class WebhookReceived
 {
     use Dispatchable, SerializesModels;
 
-    public array $payload;
-
-    public function __construct(array $payload)
-    {
-        $this->payload = $payload;
+    /**
+     * Create a new event instance.
+     */
+    public function __construct(
+        public array $payload
+    ) {
     }
 }
