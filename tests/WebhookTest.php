@@ -100,6 +100,7 @@ class WebhookTest extends TestCase
     {
         $secret = config('cashier-revenue-cat.webhook.secret');
         $payloadString = json_encode($payload);
+
         return hash_hmac('sha256', $payloadString, $secret);
     }
 }
