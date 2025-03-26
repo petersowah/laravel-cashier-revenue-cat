@@ -5,6 +5,7 @@ namespace PeterSowah\LaravelCashierRevenueCat;
 use PeterSowah\LaravelCashierRevenueCat\Commands\LaravelCashierRevenueCatCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use PeterSowah\LaravelCashierRevenueCat\Providers\RouteServiceProvider;
 
 class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
 {
@@ -33,5 +34,10 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
         $this->app->singleton(RevenueCat::class, function ($app) {
             return new RevenueCat(config('cashier-revenue-cat.api_key'));
         });
+    }
+
+    public function register(): void
+    {
+        $this->app->register(RouteServiceProvider::class);
     }
 }
