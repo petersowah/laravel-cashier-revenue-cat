@@ -4,10 +4,10 @@ namespace PeterSowah\LaravelCashierRevenueCat\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use PeterSowah\LaravelCashierRevenueCat\Customer;
-use PeterSowah\LaravelCashierRevenueCat\Receipt;
+use PeterSowah\LaravelCashierRevenueCat\Models\Customer;
+use PeterSowah\LaravelCashierRevenueCat\Models\Receipt;
+use PeterSowah\LaravelCashierRevenueCat\Models\Subscription;
 use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
-use PeterSowah\LaravelCashierRevenueCat\Subscription;
 
 /**
  * @property-read Customer|null $customer
@@ -19,9 +19,7 @@ use PeterSowah\LaravelCashierRevenueCat\Subscription;
 trait Billable
 {
     /**
-     * Get the customer related to the billable model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne<\PeterSowah\LaravelCashierRevenueCat\Customer, \Illuminate\Database\Eloquent\Model>
+     * Get the customer associated with the billable model.
      */
     public function customer(): MorphOne
     {
@@ -29,64 +27,63 @@ trait Billable
     }
 
     /**
-     * Get all of the subscriptions for the billable model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<\PeterSowah\LaravelCashierRevenueCat\Subscription, \Illuminate\Database\Eloquent\Model>
+     * Get the subscriptions associated with the billable model.
      */
     public function subscriptions(): MorphMany
     {
-        return $this->morphMany(Subscription::class, 'billable')->orderBy('created_at', 'desc');
+        return $this->morphMany(Subscription::class, 'billable');
     }
 
     /**
-     * Get a subscription instance by name for the billable model.
+     * Get the subscription associated with the billable model.
      */
-    public function subscription(?string $name = 'default'): ?Subscription
+    public function subscription(): ?Subscription
     {
         /** @var Subscription|null */
-        return $this->subscriptions()->where('name', $name)->first();
+        return $this->subscriptions()->first();
     }
 
     /**
-     * Get all of the receipts for the billable model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<\PeterSowah\LaravelCashierRevenueCat\Receipt, \Illuminate\Database\Eloquent\Model>
+     * Get the receipts associated with the billable model.
      */
     public function receipts(): MorphMany
     {
-        return $this->morphMany(Receipt::class, 'billable')->orderBy('purchased_at', 'desc');
+        return $this->morphMany(Receipt::class, 'billable');
     }
 
     /**
-     * Determine if the billable model has a RevenueCat ID.
+     * Create a customer for the billable model.
      */
-    public function hasRevenueCatId(): bool
+    public function createAsRevenueCatCustomer(): Customer
     {
-        return ! is_null($this->customer?->revenuecat_id);
+        /** @var Customer $customer */
+        $customer = $this->customer()->create([
+            'revenuecat_id' => $this->getRevenueCatId(),
+        ]);
+
+        return $customer;
     }
 
     /**
-     * Create a RevenueCat customer for the billable model.
-     *
-     * @param  array<string, mixed>  $attributes
+     * Get the RevenueCat ID for the billable model.
      */
-    public function createAsRevenueCatCustomer(array $attributes = []): Customer
+    public function getRevenueCatId(): string
     {
-        if ($this->hasRevenueCatId()) {
-            /** @var Customer */
-            return $this->customer;
-        }
+        /** @var Customer $customer */
+        $customer = $this->customer;
 
-        /** @var Customer */
-        return $this->customer()->create($attributes);
+        return $customer->revenuecat_id;
     }
 
     /**
-     * Get the RevenueCat customer ID for the billable model.
+     * Get the RevenueCat ID for the billable model.
      */
-    public function revenueCatId(): ?string
+    public function getRevenueCatCustomerId(): string
     {
-        return $this->customer?->revenuecat_id;
+        /** @var Customer $customer */
+        $customer = $this->customer;
+
+        return $customer->revenuecat_id;
     }
 
     /**
@@ -100,7 +97,7 @@ trait Billable
             return [];
         }
 
-        $response = app(RevenueCat::class)->getSubscriberEntitlements($this->revenueCatId());
+        $response = app(RevenueCat::class)->getSubscriberEntitlements($this->getRevenueCatId());
 
         return $response['entitlements'] ?? [];
     }
@@ -134,7 +131,7 @@ trait Billable
             return null;
         }
 
-        $response = app(RevenueCat::class)->getSubscriberOffering($this->revenueCatId());
+        $response = app(RevenueCat::class)->getSubscriberOffering($this->getRevenueCatId());
 
         $currentOfferingId = $response['current_offering_id'] ?? null;
 
@@ -163,7 +160,7 @@ trait Billable
             return [];
         }
 
-        $response = app(RevenueCat::class)->getSubscriberHistory($this->revenueCatId(), $params);
+        $response = app(RevenueCat::class)->getSubscriberHistory($this->getRevenueCatId(), $params);
 
         return $response['transactions'] ?? [];
     }
@@ -179,7 +176,7 @@ trait Billable
             return [];
         }
 
-        return app(RevenueCat::class)->getNonSubscriptions($this->revenueCatId());
+        return app(RevenueCat::class)->getNonSubscriptions($this->getRevenueCatId());
     }
 
     /**
@@ -193,7 +190,7 @@ trait Billable
             return [];
         }
 
-        return app(RevenueCat::class)->getOfferings($this->revenueCatId());
+        return app(RevenueCat::class)->getOfferings($this->getRevenueCatId());
     }
 
     /**
@@ -207,6 +204,17 @@ trait Billable
             return [];
         }
 
-        return app(RevenueCat::class)->getProducts($this->revenueCatId());
+        return app(RevenueCat::class)->getProducts($this->getRevenueCatId());
+    }
+
+    /**
+     * Determine if the billable model has a RevenueCat ID.
+     */
+    public function hasRevenueCatId(): bool
+    {
+        /** @var Customer|null $customer */
+        $customer = $this->customer;
+
+        return ! is_null($customer?->revenuecat_id);
     }
 }

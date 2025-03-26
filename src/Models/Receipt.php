@@ -1,8 +1,9 @@
 <?php
 
-namespace PeterSowah\LaravelCashierRevenueCat;
+namespace PeterSowah\LaravelCashierRevenueCat\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Money\Currency;
 use Money\Money;
@@ -21,23 +22,21 @@ class Receipt extends Model
     protected $table = 'receipts';
 
     protected $fillable = [
-        'revenuecat_id',
-        'product_id',
-        'price_id',
+        'transaction_id',
         'store',
+        'environment',
+        'price',
         'currency',
-        'amount',
-        'purchased_at',
+        'purchase_date',
+        'expiration_date',
+        'metadata',
     ];
 
     protected $casts = [
-        'purchased_at' => 'datetime',
-        'amount' => 'integer',
-        'currency' => 'string',
-        'revenuecat_id' => 'string',
-        'product_id' => 'string',
-        'price_id' => 'string',
-        'store' => 'string',
+        'price' => 'integer',
+        'purchase_date' => 'datetime',
+        'expiration_date' => 'datetime',
+        'metadata' => 'array',
     ];
 
     protected $attributes = [
@@ -53,5 +52,10 @@ class Receipt extends Model
     public function amount(): Money
     {
         return new Money($this->amount, new Currency($this->currency));
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

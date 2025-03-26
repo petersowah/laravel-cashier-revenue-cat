@@ -2,7 +2,7 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat\Tests\Fixtures;
 
-use Illuminate\Foundation\Auth\User as Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
 
@@ -10,9 +10,11 @@ use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property \PeterSowah\LaravelCashierRevenueCat\Customer|null $customer
+ * @property \PeterSowah\LaravelCashierRevenueCat\Models\Customer $customer
+ * @property \PeterSowah\LaravelCashierRevenueCat\Models\Subscription $subscription
+ * @property \PeterSowah\LaravelCashierRevenueCat\Models\Receipt $receipts
  */
-class User extends Model
+class User extends Authenticatable
 {
     use Billable, Notifiable;
 
@@ -21,6 +23,12 @@ class User extends Model
     protected $fillable = [
         'name',
         'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     /**

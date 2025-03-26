@@ -1,6 +1,6 @@
 <?php
 
-namespace PeterSowah\LaravelCashierRevenueCat;
+namespace PeterSowah\LaravelCashierRevenueCat\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -20,12 +20,16 @@ class Customer extends Model
 
     protected $fillable = [
         'revenuecat_id',
-        'store',
+        'email',
+        'display_name',
+        'phone_number',
+        'metadata',
     ];
 
     protected $casts = [
         'revenuecat_id' => 'string',
         'store' => 'string',
+        'metadata' => 'array',
     ];
 
     public function billable(): MorphTo

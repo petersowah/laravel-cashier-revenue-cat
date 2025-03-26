@@ -1,6 +1,6 @@
 <?php
 
-namespace PeterSowah\LaravelCashierRevenueCat;
+namespace PeterSowah\LaravelCashierRevenueCat\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +20,7 @@ class SubscriptionItem extends Model
         'product_id',
         'price_id',
         'quantity',
+        'metadata',
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class SubscriptionItem extends Model
         'product_id' => 'string',
         'price_id' => 'string',
         'quantity' => 'integer',
+        'metadata' => 'array',
     ];
 
     protected $attributes = [

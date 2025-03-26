@@ -11,5 +11,4 @@ parameters:
     checkOctaneCompatibility: true
     checkModelProperties: true
     ignoreErrors:
-        - '#Method .+::(customer|subscriptions|receipts)\(\) should return .+ but returns .+#'
         - '#Call to an undefined method (Pest\\PendingCalls\\TestCall|PHPUnit\\Framework\\TestCase)::.+#'

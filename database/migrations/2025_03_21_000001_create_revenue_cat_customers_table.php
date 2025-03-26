@@ -13,15 +13,13 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->morphs('billable');
             $table->string('revenuecat_id')->unique();
+            $table->morphs('billable');
             $table->string('email')->nullable();
             $table->string('display_name')->nullable();
             $table->string('phone_number')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
-
-            $table->index(['billable_type', 'billable_id']);
         });
     }
 
