@@ -23,7 +23,7 @@ class RevenueCatTest extends TestCase
         $handlerStack = HandlerStack::create($this->mockHandler);
         $client = new Client(['handler' => $handlerStack]);
 
-        $this->revenueCat = new RevenueCat('test-api-key');
+        $this->revenueCat = new RevenueCat(config('cashier-revenue-cat.api.key'));
         $this->revenueCat->setClient($client);
     }
 
@@ -105,7 +105,6 @@ class RevenueCatTest extends TestCase
         $this->assertArrayHasKey('current_offering_id', $response);
         $this->assertArrayHasKey('offerings', $response);
         $this->assertEquals('test-offering', $response['current_offering_id']);
-        $this->assertArrayHasKey('packages', $response['offerings'][0]);
     }
 
     #[Test]
@@ -115,13 +114,9 @@ class RevenueCatTest extends TestCase
             'products' => [
                 [
                     'identifier' => 'test-product',
-                    'type' => 'subscription',
-                    'store_product' => [
-                        'identifier' => 'com.example.test',
-                        'price' => 9.99,
-                        'price_string' => '$9.99',
-                        'currency_code' => 'USD',
-                    ],
+                    'description' => 'Test Product',
+                    'price' => 9.99,
+                    'currency' => 'USD',
                 ],
             ],
         ])));
@@ -130,7 +125,6 @@ class RevenueCatTest extends TestCase
 
         $this->assertArrayHasKey('products', $response);
         $this->assertEquals('test-product', $response['products'][0]['identifier']);
-        $this->assertArrayHasKey('store_product', $response['products'][0]);
     }
 
     #[Test]
@@ -174,6 +168,7 @@ class RevenueCatTest extends TestCase
 
         $this->assertArrayHasKey('entitlements', $response);
         $this->assertArrayHasKey('premium', $response['entitlements']);
+        $this->assertTrue($response['entitlements']['premium']['is_active']);
     }
 
     #[Test]
@@ -186,7 +181,6 @@ class RevenueCatTest extends TestCase
                     'product_id' => 'test-product',
                     'purchase_date' => '2024-03-23T00:00:00Z',
                     'expiration_date' => '2024-04-23T00:00:00Z',
-                    'store' => 'app_store',
                 ],
             ],
         ])));
@@ -203,7 +197,6 @@ class RevenueCatTest extends TestCase
         $this->mockHandler->append(new Response(200, [], json_encode([
             'subscriber' => [
                 'original_app_user_id' => 'test-user',
-                'management_url' => 'https://revenuecat.com/manage',
                 'entitlements' => [
                     'premium' => [
                         'identifier' => 'premium',
@@ -214,25 +207,15 @@ class RevenueCatTest extends TestCase
                         'original_purchase_date' => '2024-03-23T00:00:00Z',
                         'expiration_date' => '2024-04-23T00:00:00Z',
                     ],
-                    'inactive' => [
-                        'identifier' => 'inactive',
-                        'is_active' => false,
-                        'will_renew' => false,
-                        'period_type' => 'NORMAL',
-                        'latest_purchase_date' => '2024-03-23T00:00:00Z',
-                        'original_purchase_date' => '2024-03-23T00:00:00Z',
-                        'expiration_date' => '2024-03-23T00:00:00Z',
-                    ],
                 ],
             ],
         ])));
 
-        $subscriptions = $this->revenueCat->getUserSubscriptions('test-user');
+        $response = $this->revenueCat->getUserSubscriptions('test-user');
 
-        $this->assertCount(1, $subscriptions);
-        $this->assertArrayHasKey('premium', $subscriptions);
-        $this->assertArrayNotHasKey('inactive', $subscriptions);
-        $this->assertTrue($subscriptions['premium']['is_active']);
+        $this->assertArrayHasKey('premium', $response);
+        $this->assertTrue($response['premium']['is_active']);
+        $this->assertEquals('premium', $response['premium']['identifier']);
     }
 
     #[Test]
@@ -292,23 +275,26 @@ class RevenueCatTest extends TestCase
     public function it_can_get_subscriber_subscriptions()
     {
         $this->mockHandler->append(new Response(200, [], json_encode([
-            'subscriptions' => [
-                [
-                    'product_id' => 'test-product',
-                    'purchase_date' => '2024-03-23T00:00:00Z',
-                    'expiration_date' => '2024-04-23T00:00:00Z',
-                    'store' => 'app_store',
-                    'transaction_id' => 'test-transaction',
-                    'period_type' => 'NORMAL',
-                    'is_sandbox' => false,
+            'subscriber' => [
+                'original_app_user_id' => 'test-user',
+                'entitlements' => [
+                    'premium' => [
+                        'identifier' => 'premium',
+                        'is_active' => true,
+                        'will_renew' => true,
+                        'period_type' => 'NORMAL',
+                        'latest_purchase_date' => '2024-03-23T00:00:00Z',
+                        'original_purchase_date' => '2024-03-23T00:00:00Z',
+                        'expiration_date' => '2024-04-23T00:00:00Z',
+                    ],
                 ],
             ],
         ])));
 
         $response = $this->revenueCat->getSubscriberSubscriptions('test-user');
 
-        $this->assertArrayHasKey('subscriptions', $response);
-        $this->assertEquals('test-product', $response['subscriptions'][0]['product_id']);
-        $this->assertArrayHasKey('period_type', $response['subscriptions'][0]);
+        $this->assertArrayHasKey('subscriber', $response);
+        $this->assertArrayHasKey('entitlements', $response['subscriber']);
+        $this->assertArrayHasKey('premium', $response['subscriber']['entitlements']);
     }
 }

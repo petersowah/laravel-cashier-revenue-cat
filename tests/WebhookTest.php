@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
+use PHPUnit\Framework\Attributes\Test;
 
 class WebhookTest extends TestCase
 {
@@ -24,7 +25,7 @@ class WebhookTest extends TestCase
         $app['config']->set('cashier-revenue-cat.webhook.secret', 'test-secret');
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_webhook_signature()
     {
         $this->withoutExceptionHandling();
@@ -37,7 +38,7 @@ class WebhookTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_webhook_without_signature()
     {
         $this->withoutExceptionHandling();
@@ -49,7 +50,7 @@ class WebhookTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_webhooks()
     {
         $this->postJson(
@@ -99,7 +100,6 @@ class WebhookTest extends TestCase
     {
         $secret = config('cashier-revenue-cat.webhook.secret');
         $payloadString = json_encode($payload);
-
         return hash_hmac('sha256', $payloadString, $secret);
     }
 }
