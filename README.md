@@ -366,13 +366,92 @@ class HandleRevenueCatWebhook
 }
 ```
 
+## Database Schema
+
+The package includes migrations for the following tables:
+
+- `revenue_cat_customers`: Stores RevenueCat customer information
+  - `id`: Primary key
+  - `revenuecat_id`: RevenueCat's customer identifier
+  - `email`: Customer's email address
+  - `display_name`: Customer's display name
+  - `phone_number`: Customer's phone number
+  - `metadata`: JSON column for additional customer attributes
+  - Timestamps
+
+- `revenue_cat_subscriptions`: Stores subscription information
+  - `id`: Primary key
+  - `customer_id`: Foreign key to revenue_cat_customers
+  - `revenuecat_id`: RevenueCat's subscription identifier
+  - `name`: Subscription name
+  - `product_id`: RevenueCat product identifier
+  - `price_id`: RevenueCat price identifier
+  - `status`: Subscription status
+  - `cancel_at_period_end`: Whether subscription will cancel at period end
+  - `canceled_at`: When the subscription was canceled
+  - `trial_ends_at`: When the trial period ends
+  - `ends_at`: When the subscription ends
+  - `last_event_at`: When the last event occurred
+  - Timestamps
+
+- `revenue_cat_receipts`: Stores transaction receipts
+  - `id`: Primary key
+  - `customer_id`: Foreign key to revenue_cat_customers
+  - `transaction_id`: RevenueCat transaction identifier
+  - `store`: App store identifier (App Store/Play Store)
+  - `environment`: Production or sandbox
+  - `price`: Transaction amount
+  - `currency`: Transaction currency
+  - `purchased_at`: When the purchase was made
+  - `expires_at`: When the purchase expires
+  - Timestamps
+
+## Models
+
+The package includes the following models in the `PeterSowah\LaravelCashierRevenueCat\Models` namespace:
+
+- `Customer`: Represents a RevenueCat customer
+- `Subscription`: Represents a customer's subscription
+- `Receipt`: Represents a transaction receipt
+
+To use these models in your application, you can either:
+
+1. Use them directly:
+```php
+use PeterSowah\LaravelCashierRevenueCat\Models\Customer;
+use PeterSowah\LaravelCashierRevenueCat\Models\Subscription;
+use PeterSowah\LaravelCashierRevenueCat\Models\Receipt;
+```
+
+2. Or extend them for custom functionality:
+```php
+use PeterSowah\LaravelCashierRevenueCat\Models\Customer as RevenueCatCustomer;
+
+class Customer extends RevenueCatCustomer
+{
+    // Your custom functionality
+}
+```
+
 ## Testing
 
 The package includes a comprehensive test suite. To run the tests:
 
 ```bash
-vendor/bin/pest
+composer test
 ```
+
+This will run both PHPUnit tests and PHPStan static analysis. You can run them separately:
+
+```bash
+# Run PHPUnit tests only
+vendor/bin/pest
+
+# Run PHPStan analysis only
+vendor/bin/phpstan analyse
+```
+
+The package maintains a high level of type safety and follows Laravel's coding standards.
 
 ## Contributing
 
