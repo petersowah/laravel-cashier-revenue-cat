@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use PeterSowah\LaravelCashierRevenueCat\Customer;
 use PeterSowah\LaravelCashierRevenueCat\Receipt;
-use PeterSowah\LaravelCashierRevenueCat\Subscription;
 use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
+use PeterSowah\LaravelCashierRevenueCat\Subscription;
 
 /**
  * @property-read Customer|null $customer
