@@ -14,6 +14,9 @@ A Laravel Cashier driver for RevenueCat, providing seamless integration with Rev
 - Event-driven architecture for subscription management
 - Support for entitlements management
 - Support for non-subscription purchases
+- Caching support for API responses
+- Comprehensive logging and error handling
+- Automatic retry mechanism for failed API calls
 
 ## Installation
 
@@ -72,21 +75,24 @@ REVENUE_CAT_MAX_RETRIES=3
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `REVENUE_CAT_PUBLIC_KEY` | Your RevenueCat public API key | Yes | - |
-| `REVENUE_CAT_SECRET_KEY` | Your RevenueCat secret API key | Yes | - |
+| `REVENUE_CAT_API_KEY` | Your RevenueCat API key | Yes | - |
+| `REVENUE_CAT_PROJECT_ID` | Your RevenueCat project ID | Yes | - |
 | `REVENUE_CAT_WEBHOOK_SECRET` | Secret for webhook signature verification | Yes | - |
-| `REVENUE_CAT_WEBHOOK_URL` | URL path for webhook endpoint | No | `/revenue-cat/webhook` |
 | `REVENUE_CAT_API_VERSION` | RevenueCat API version | No | `v2` |
 | `REVENUE_CAT_API_BASE_URL` | RevenueCat API base URL | No | `https://api.revenuecat.com` |
-| `REVENUE_CAT_WEBHOOK_ENABLED` | Enable/disable webhook handling | No | `true` |
-| `REVENUE_CAT_WEBHOOK_QUEUE` | Queue for webhook processing | No | `default` |
+| `REVENUE_CAT_WEBHOOK_TOLERANCE` | Webhook signature tolerance in seconds | No | `300` |
+| `REVENUE_CAT_WEBHOOK_ENDPOINT` | Webhook endpoint path | No | `webhook/revenuecat` |
+| `REVENUE_CAT_CACHE_ENABLED` | Enable/disable API response caching | No | `true` |
 | `REVENUE_CAT_CACHE_TTL` | Cache time to live in seconds | No | `3600` |
-| `REVENUE_CAT_CACHE_ENABLED` | Enable/disable caching | No | `true` |
-| `REVENUE_CAT_LOG_LEVEL` | Logging level (debug, info, warning, error) | No | `debug` |
-| `REVENUE_CAT_LOG_ENABLED` | Enable/disable logging | No | `true` |
-| `REVENUE_CAT_THROW_ON_ERROR` | Throw exceptions on API errors | No | `true` |
+| `REVENUE_CAT_CACHE_PREFIX` | Cache key prefix | No | `revenuecat` |
+| `REVENUE_CAT_LOGGING_ENABLED` | Enable/disable logging | No | `true` |
+| `REVENUE_CAT_LOGGING_CHANNEL` | Logging channel | No | `stack` |
+| `REVENUE_CAT_LOGGING_LEVEL` | Logging level | No | `debug` |
+| `REVENUE_CAT_THROW_EXCEPTIONS` | Throw exceptions on API errors | No | `true` |
+| `REVENUE_CAT_LOG_ERRORS` | Log API errors | No | `true` |
 | `REVENUE_CAT_RETRY_ON_ERROR` | Retry failed API calls | No | `true` |
 | `REVENUE_CAT_MAX_RETRIES` | Maximum number of retries | No | `3` |
+| `REVENUE_CAT_CURRENCY` | Default currency code | No | `USD` |
 
 5. Update your `User` model to use the RevenueCat Billable trait:
 
@@ -283,46 +289,57 @@ https://your-app.com/revenue-cat/webhook
 ```php
 // In your EventServiceProvider
 protected $listen = [
-    'PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived' => [
-        'App\Listeners\HandleRevenueCatWebhook',
+    \PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived::class => [
+        \App\Listeners\HandleRevenueCatWebhook::class,
     ],
 ];
 ```
 
-4. Handle the events in your listener:
+4. Create a webhook handler:
 
 ```php
-public function handle(WebhookReceived $event)
-{
-    $payload = $event->payload;
-    $eventType = $payload['event']['type'];
-    $subscriber = $payload['event']['subscriber'];
-    $entitlements = $subscriber['entitlements'];
+namespace App\Listeners;
 
-    switch ($eventType) {
-        case 'INITIAL_PURCHASE':
-            // Handle initial purchase
-            break;
-        case 'RENEWAL':
-            // Handle renewal
-            break;
-        case 'CANCELLATION':
-            // Handle cancellation
-            break;
-        // ... handle other events
+use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
+
+class HandleRevenueCatWebhook
+{
+    public function handle(WebhookReceived $event): void
+    {
+        $payload = $event->payload;
+        $type = $payload['event']['type'];
+
+        switch ($type) {
+            case 'INITIAL_PURCHASE':
+                // Handle initial purchase
+                break;
+            case 'RENEWAL':
+                // Handle renewal
+                break;
+            case 'CANCELLATION':
+                // Handle cancellation
+                break;
+            // ... handle other event types
+        }
     }
 }
 ```
 
 ## Testing
 
+The package includes a comprehensive test suite. To run the tests:
+
 ```bash
-composer test
+vendor/bin/pest
 ```
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Security
 
-If you discover any security-related issues, please email [security contact] instead of using the issue tracker.
+If you discover any security-related issues, please email petersowah@gmail.com instead of using the issue tracker.
 
 ## Credits
 
