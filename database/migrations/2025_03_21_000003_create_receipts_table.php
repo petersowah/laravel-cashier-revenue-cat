@@ -24,7 +24,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
 
-            $table->index(['billable_type', 'billable_id']);
+            // $table->index(['billable_type', 'billable_id']);
             $table->index('transaction_id');
             $table->index('purchase_date');
             $table->index('expiration_date');
