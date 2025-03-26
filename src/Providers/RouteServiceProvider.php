@@ -36,4 +36,4 @@ class RouteServiceProvider extends ServiceProvider
                 )->name('cashier-revenue-cat.webhook');
             });
     }
-} 
+}

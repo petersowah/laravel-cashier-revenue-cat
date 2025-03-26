@@ -3,9 +3,9 @@
 namespace PeterSowah\LaravelCashierRevenueCat;
 
 use PeterSowah\LaravelCashierRevenueCat\Commands\LaravelCashierRevenueCatCommand;
+use PeterSowah\LaravelCashierRevenueCat\Providers\RouteServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use PeterSowah\LaravelCashierRevenueCat\Providers\RouteServiceProvider;
 
 class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
 {

@@ -21,4 +21,4 @@ class WebhookSignature
 
         return hash_equals($expectedSignature, $signature);
     }
-} 
+}

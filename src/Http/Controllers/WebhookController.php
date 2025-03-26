@@ -19,11 +19,13 @@ class WebhookController
 
         if (! $signature) {
             Log::warning('RevenueCat webhook received without signature');
+
             return response('', 400);
         }
 
         if (! WebhookSignature::verify($request->getContent(), $signature)) {
             Log::warning('RevenueCat webhook signature verification failed');
+
             return response('', 400);
         }
 
