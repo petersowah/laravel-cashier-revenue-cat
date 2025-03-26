@@ -179,8 +179,34 @@ trait Billable
             return [];
         }
 
-        $response = app(RevenueCat::class)->getSubscriberNonSubscriptions($this->revenueCatId());
+        return app(RevenueCat::class)->getNonSubscriptions($this->revenueCatId());
+    }
 
-        return $response['non_subscriptions'] ?? [];
+    /**
+     * Get available offerings for the billable model.
+     *
+     * @return array<string, mixed>
+     */
+    public function getOfferings(): array
+    {
+        if (! $this->hasRevenueCatId()) {
+            return [];
+        }
+
+        return app(RevenueCat::class)->getOfferings($this->revenueCatId());
+    }
+
+    /**
+     * Get available products for the billable model.
+     *
+     * @return array<string, mixed>
+     */
+    public function getProducts(): array
+    {
+        if (! $this->hasRevenueCatId()) {
+            return [];
+        }
+
+        return app(RevenueCat::class)->getProducts($this->revenueCatId());
     }
 }
