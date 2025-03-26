@@ -1,6 +1,6 @@
 <?php
 
-namespace PeterSowah\LaravelCashierRevenueCat;
+namespace PeterSowah\LaravelCashierRevenueCat\Models;
 
 use Carbon\Carbon;
 use DateTimeInterface;
