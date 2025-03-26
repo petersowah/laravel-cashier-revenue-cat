@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use PeterSowah\LaravelCashierRevenueCat\Customer;
 use PeterSowah\LaravelCashierRevenueCat\Receipt;
 use PeterSowah\LaravelCashierRevenueCat\Subscription;
+use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
 
 /**
  * @property-read Customer|null $customer
@@ -86,5 +87,100 @@ trait Billable
     public function revenueCatId(): ?string
     {
         return $this->customer?->revenuecat_id;
+    }
+
+    /**
+     * Get all active entitlements for the billable model.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getEntitlements(): array
+    {
+        if (! $this->hasRevenueCatId()) {
+            return [];
+        }
+
+        $response = app(RevenueCat::class)->getSubscriberEntitlements($this->revenueCatId());
+
+        return $response['entitlements'] ?? [];
+    }
+
+    /**
+     * Get a specific entitlement for the billable model.
+     */
+    public function getEntitlement(string $identifier): ?array
+    {
+        return $this->getEntitlements()[$identifier] ?? null;
+    }
+
+    /**
+     * Check if the billable model has an active entitlement.
+     */
+    public function hasEntitlement(string $identifier): bool
+    {
+        $entitlement = $this->getEntitlement($identifier);
+
+        return $entitlement !== null && ($entitlement['is_active'] ?? false);
+    }
+
+    /**
+     * Get the current offering for the billable model.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getCurrentOffering(): ?array
+    {
+        if (! $this->hasRevenueCatId()) {
+            return null;
+        }
+
+        $response = app(RevenueCat::class)->getSubscriberOffering($this->revenueCatId());
+
+        $currentOfferingId = $response['current_offering_id'] ?? null;
+
+        if (! $currentOfferingId) {
+            return null;
+        }
+
+        foreach ($response['offerings'] ?? [] as $offering) {
+            if ($offering['identifier'] === $currentOfferingId) {
+                return $offering;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the subscription history for the billable model.
+     *
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
+     */
+    public function getSubscriptionHistory(array $params = []): array
+    {
+        if (! $this->hasRevenueCatId()) {
+            return [];
+        }
+
+        $response = app(RevenueCat::class)->getSubscriberHistory($this->revenueCatId(), $params);
+
+        return $response['transactions'] ?? [];
+    }
+
+    /**
+     * Get the non-subscription purchases for the billable model.
+     *
+     * @return array<string, mixed>
+     */
+    public function getNonSubscriptions(): array
+    {
+        if (! $this->hasRevenueCatId()) {
+            return [];
+        }
+
+        $response = app(RevenueCat::class)->getSubscriberNonSubscriptions($this->revenueCatId());
+
+        return $response['non_subscriptions'] ?? [];
     }
 }
