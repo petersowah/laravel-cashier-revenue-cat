@@ -2,7 +2,7 @@
 
 return [
     'revenuecat' => [
-        'key' => env('REVENUE_CAT_API_KEY'),
+        'key' => env('REVENUE_CAT_SECRET_KEY'),
         'project_id' => env('REVENUE_CAT_PROJECT_ID'),
         'version' => env('REVENUE_CAT_API_VERSION', 'v2'),
         'base_url' => env('REVENUE_CAT_API_BASE_URL', 'https://api.revenuecat.com'),

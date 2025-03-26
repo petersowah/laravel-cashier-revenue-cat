@@ -52,8 +52,8 @@ Copy the `.env.example` file to `.env` and update the values:
 
 ```env
 # Required Configuration
-REVENUE_CAT_PUBLIC_KEY=your_public_key_here
 REVENUE_CAT_SECRET_KEY=your_secret_key_here
+REVENUE_CAT_PROJECT_ID=your_project_id_here
 REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
 
 # Optional Configuration
@@ -75,7 +75,7 @@ REVENUE_CAT_MAX_RETRIES=3
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `REVENUE_CAT_API_KEY` | Your RevenueCat API key | Yes | - |
+| `REVENUE_CAT_SECRET_KEY` | Your RevenueCat secret key for backend operations | Yes | - |
 | `REVENUE_CAT_PROJECT_ID` | Your RevenueCat project ID | Yes | - |
 | `REVENUE_CAT_WEBHOOK_SECRET` | Secret for webhook signature verification | Yes | - |
 | `REVENUE_CAT_API_VERSION` | RevenueCat API version | No | `v2` |
@@ -100,7 +100,7 @@ You can also configure the RevenueCat service in `config/services.php`:
 
 ```php
 'revenuecat' => [
-    'key' => env('REVENUE_CAT_API_KEY'),
+    'key' => env('REVENUE_CAT_SECRET_KEY'),
     'project_id' => env('REVENUE_CAT_PROJECT_ID'),
     'version' => env('REVENUE_CAT_API_VERSION', 'v2'),
     'base_url' => env('REVENUE_CAT_API_BASE_URL', 'https://api.revenuecat.com'),
@@ -138,241 +138,4 @@ class User extends Authenticatable
 
 1. First, set up RevenueCat in your iOS app by adding the RevenueCat SDK:
 
-```swift
-import RevenueCat
-
-// In your AppDelegate or early in app lifecycle
-Purchases.configure(
-    withAPIKey: "your_public_key",
-    appUserID: "user_identifier" // Use the same identifier you'll use in Laravel
-)
 ```
-
-2. Handle purchases in your iOS app:
-
-```swift
-// Get available packages
-Purchases.shared.getOfferings { (offerings, error) in
-    if let packages = offerings?.current?.availablePackages {
-        // Display packages to user
-    }
-}
-
-// Make a purchase
-Purchases.shared.purchase(package: package) { (transaction, customerInfo, error, userCancelled) in
-    if let customerInfo = customerInfo {
-        // Purchase successful
-        // Check entitlements
-        if customerInfo.entitlements["premium"]?.isActive == true {
-            // Premium features are active
-        }
-    }
-}
-```
-
-### Android Integration
-
-1. Add the RevenueCat SDK to your Android app:
-
-```kotlin
-import com.revenuecat.purchases.Purchases
-
-// In your Application class or early in app lifecycle
-Purchases.configure(
-    PurchasesConfiguration.Builder(context, "your_public_key")
-        .appUserID("user_identifier") // Use the same identifier you'll use in Laravel
-        .build()
-)
-```
-
-2. Handle purchases in your Android app:
-
-```kotlin
-// Get available packages
-Purchases.sharedInstance.getOfferings({ offerings ->
-    offerings.current?.availablePackages?.let { packages ->
-        // Display packages to user
-    }
-})
-
-// Make a purchase
-Purchases.sharedInstance.purchasePackage(
-    activity,
-    package
-) { customerInfo ->
-    // Purchase successful
-    // Check entitlements
-    if (customerInfo.entitlements["premium"]?.isActive == true) {
-        // Premium features are active
-    }
-}
-```
-
-## Flutter Integration
-
-1. Add the RevenueCat Flutter SDK to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  purchases_flutter: ^6.0.0  # Use the latest version
-```
-
-2. Initialize RevenueCat in your Flutter app:
-
-```dart
-import 'package:purchases_flutter/purchases_flutter.dart';
-
-// Initialize RevenueCat (typically in your app initialization)
-await Purchases.setLogLevel(LogLevel.debug);
-await Purchases.configure(PurchasesConfiguration("your_public_key"));
-
-// When user signs up/logs in
-await Purchases.logIn('user_identifier'); // Use your user's unique ID
-
-// Get available packages
-try {
-  Offerings offerings = await Purchases.getOfferings();
-  if (offerings.current != null) {
-    // Display packages to user
-    List<Package> packages = offerings.current.availablePackages;
-  }
-} catch (e) {
-  // Handle error
-}
-
-// When user selects a package to purchase
-try {
-  CustomerInfo customerInfo = await Purchases.purchasePackage(package);
-  if (customerInfo.entitlements.active.containsKey('premium')) {
-    // Purchase successful
-    // The webhook will handle the rest
-  }
-} catch (e) {
-  // Handle error
-}
-```
-
-## Laravel Backend Usage
-
-### Managing Subscribers
-
-```php
-// Get subscriber information
-$subscriber = $user->subscription()->getSubscriber();
-
-// Get subscriber's entitlements
-$entitlements = $user->getEntitlements();
-
-// Check if user has specific entitlement
-if ($user->hasEntitlement('premium')) {
-    // User has premium access
-}
-
-// Get current offering
-$offering = $user->getCurrentOffering();
-
-// Get subscription history
-$history = $user->getSubscriptionHistory();
-
-// Get non-subscription purchases
-$purchases = $user->getNonSubscriptions();
-
-// Create a subscriber
-$user->subscription()->createSubscriber([
-    'attributes' => [
-        'name' => 'John Doe',
-        'email' => 'john@example.com'
-    ]
-]);
-
-// Get available offerings
-$offerings = $user->subscription()->getOfferings();
-
-// Get available products
-$products = $user->subscription()->getProducts();
-```
-
-### Handling Webhooks
-
-1. Set up the webhook URL in your RevenueCat dashboard:
-```
-https://your-app.com/revenue-cat/webhook
-```
-
-2. The package automatically handles the following webhook events:
-- Initial Purchase
-- Renewal
-- Cancellation
-- Subscription Paused
-- Subscription Resumed
-- Product Change
-- Billing Issue
-- Refund
-- Non-Renewing Purchase
-- Subscription Period Changed
-
-3. Listen to webhook events in your application:
-
-```php
-// In your EventServiceProvider
-protected $listen = [
-    \PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived::class => [
-        \App\Listeners\HandleRevenueCatWebhook::class,
-    ],
-];
-```
-
-4. Create a webhook handler:
-
-```php
-namespace App\Listeners;
-
-use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
-
-class HandleRevenueCatWebhook
-{
-    public function handle(WebhookReceived $event): void
-    {
-        $payload = $event->payload;
-        $type = $payload['event']['type'];
-
-        switch ($type) {
-            case 'INITIAL_PURCHASE':
-                // Handle initial purchase
-                break;
-            case 'RENEWAL':
-                // Handle renewal
-                break;
-            case 'CANCELLATION':
-                // Handle cancellation
-                break;
-            // ... handle other event types
-        }
-    }
-}
-```
-
-## Testing
-
-The package includes a comprehensive test suite. To run the tests:
-
-```bash
-vendor/bin/pest
-```
-
-## Contributing
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## Security
-
-If you discover any security-related issues, please email petersowah@gmail.com instead of using the issue tracker.
-
-## Credits
-
-- [Peter Sowah](https://github.com/petersowah)
-- [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
