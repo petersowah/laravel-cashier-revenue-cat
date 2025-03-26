@@ -308,12 +308,23 @@ $products = $user->subscription()->getProducts();
 
 ### Handling Webhooks
 
-1. Set up the webhook URL in your RevenueCat dashboard:
-```
-https://your-app.com/revenue-cat/webhook
+1. The package automatically registers a webhook route at `/webhook/revenuecat`. You can configure the endpoint in your `.env` file:
+
+```env
+REVENUE_CAT_WEBHOOK_ENDPOINT=webhook/revenuecat
 ```
 
-2. The package automatically handles the following webhook events:
+2. Set up the webhook URL in your RevenueCat dashboard:
+```
+https://your-app.com/webhook/revenuecat
+```
+
+3. Configure your webhook secret in your `.env` file:
+```env
+REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
+```
+
+4. The package automatically handles the following webhook events:
 - Initial Purchase
 - Renewal
 - Cancellation
@@ -325,7 +336,7 @@ https://your-app.com/revenue-cat/webhook
 - Non-Renewing Purchase
 - Subscription Period Changed
 
-3. Listen to webhook events in your application:
+5. Listen to webhook events in your application:
 
 ```php
 // In your EventServiceProvider
@@ -336,7 +347,7 @@ protected $listen = [
 ];
 ```
 
-4. Create a webhook handler:
+6. Create a webhook handler:
 
 ```php
 namespace App\Listeners;
@@ -365,6 +376,8 @@ class HandleRevenueCatWebhook
     }
 }
 ```
+
+The webhook endpoint is automatically secured with signature verification using the `X-RevenueCat-Signature` header. The package will verify the signature using your configured webhook secret before processing any webhook events.
 
 ## Database Schema
 
