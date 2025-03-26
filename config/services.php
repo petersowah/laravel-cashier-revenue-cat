@@ -21,4 +21,4 @@ return [
         'max_retries' => env('REVENUE_CAT_MAX_RETRIES', 3),
         'currency' => env('REVENUE_CAT_CURRENCY', 'USD'),
     ],
-]; 
+];
