@@ -7,76 +7,79 @@ return [
     | RevenueCat API Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you can configure your RevenueCat API settings. You'll need to add
-    | your API keys to your .env file.
+    | Here you can configure your RevenueCat API settings. The API key and
+    | project ID are required for the package to work.
     |
     */
 
     'api' => [
-        'version' => env('REVENUE_CAT_API_VERSION', 'v2'),
-        'base_url' => env('REVENUE_CAT_API_BASE_URL', 'https://api.revenuecat.com'),
-        'public_key' => env('REVENUE_CAT_PUBLIC_KEY'),
-        'secret_key' => env('REVENUE_CAT_SECRET_KEY'),
+        'key' => config('services.revenuecat.key'),
+        'project_id' => config('services.revenuecat.project_id'),
+        'version' => config('services.revenuecat.version', 'v2'),
+        'base_url' => config('services.revenuecat.base_url', 'https://api.revenuecat.com'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | RevenueCat Webhook Configuration
+    | Webhook Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you can configure your RevenueCat webhook settings. The webhook
-    | secret should be added to your .env file.
+    | Configure how webhooks from RevenueCat are handled. The webhook secret
+    | is used to verify the authenticity of incoming webhooks.
     |
     */
 
     'webhook' => [
-        'enabled' => env('REVENUE_CAT_WEBHOOK_ENABLED', true),
-        'secret' => env('REVENUE_CAT_WEBHOOK_SECRET'),
-        'url' => env('REVENUE_CAT_WEBHOOK_URL', '/revenue-cat/webhook'),
-        'queue' => env('REVENUE_CAT_WEBHOOK_QUEUE', 'default'),
+        'secret' => config('services.revenuecat.webhook_secret'),
+        'tolerance' => config('services.revenuecat.webhook_tolerance', 300),
+        'endpoint' => config('services.revenuecat.webhook_endpoint', 'webhook/revenuecat'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | RevenueCat Cache Configuration
+    | Cache Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you can configure caching for RevenueCat API responses.
+    | Configure caching for RevenueCat API responses. This can help reduce
+    | API calls and improve performance.
     |
     */
 
     'cache' => [
-        'enabled' => env('REVENUE_CAT_CACHE_ENABLED', true),
-        'ttl' => env('REVENUE_CAT_CACHE_TTL', 3600), // 1 hour
+        'enabled' => config('services.revenuecat.cache_enabled', true),
+        'ttl' => config('services.revenuecat.cache_ttl', 3600),
+        'prefix' => config('services.revenuecat.cache_prefix', 'revenuecat'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | RevenueCat Logging Configuration
+    | Logging Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you can configure logging for RevenueCat operations.
+    | Configure logging for RevenueCat API calls and webhook events.
     |
     */
 
     'logging' => [
-        'enabled' => env('REVENUE_CAT_LOG_ENABLED', true),
-        'level' => env('REVENUE_CAT_LOG_LEVEL', 'debug'),
+        'enabled' => config('services.revenuecat.logging_enabled', true),
+        'channel' => config('services.revenuecat.logging_channel', 'stack'),
+        'level' => config('services.revenuecat.logging_level', 'debug'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | RevenueCat Error Handling
+    | Error Handling Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you can configure how errors are handled.
+    | Configure how errors from the RevenueCat API are handled.
     |
     */
 
     'error_handling' => [
-        'throw_on_error' => env('REVENUE_CAT_THROW_ON_ERROR', true),
-        'retry_on_error' => env('REVENUE_CAT_RETRY_ON_ERROR', true),
-        'max_retries' => env('REVENUE_CAT_MAX_RETRIES', 3),
+        'throw_exceptions' => config('services.revenuecat.throw_exceptions', true),
+        'log_errors' => config('services.revenuecat.log_errors', true),
+        'retry_on_error' => config('services.revenuecat.retry_on_error', true),
+        'max_retries' => config('services.revenuecat.max_retries', 3),
     ],
 
     'currency' => config('services.revenuecat.currency', 'USD'),
