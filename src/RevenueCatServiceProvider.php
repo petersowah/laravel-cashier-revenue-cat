@@ -5,6 +5,7 @@ namespace PeterSowah\LaravelCashierRevenueCat;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
+use PeterSowah\LaravelCashierRevenueCat\Http\Middleware\VerifyRevenueCatWebhook;
 
 class RevenueCatServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,7 @@ class RevenueCatServiceProvider extends ServiceProvider
         }
 
         $this->registerWebhookRoute();
+        $this->registerMiddleware();
     }
 
     /**
@@ -40,7 +42,15 @@ class RevenueCatServiceProvider extends ServiceProvider
     {
         Route::post(config('cashier-revenue-cat.webhook.endpoint'), [WebhookController::class, 'handleWebhook'])
             ->name('cashier-revenue-cat.webhook')
-            ->middleware('web')
+            ->middleware(['revenuecat'])
             ->withoutMiddleware(['csrf']);
+    }
+
+    /**
+     * Register the middleware.
+     */
+    protected function registerMiddleware(): void
+    {
+        $this->app['router']->aliasMiddleware('revenuecat', VerifyRevenueCatWebhook::class);
     }
 }

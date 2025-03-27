@@ -33,6 +33,12 @@ return [
         'secret' => config('services.revenuecat.webhook_secret'),
         'tolerance' => config('services.revenuecat.webhook_tolerance', 300),
         'endpoint' => config('services.revenuecat.webhook_endpoint', 'webhook/revenuecat'),
+        'allowed_ips' => config('services.revenuecat.webhook_allowed_ips', []),
+        'rate_limit' => [
+            'enabled' => config('services.revenuecat.webhook_rate_limit_enabled', true),
+            'max_attempts' => config('services.revenuecat.webhook_rate_limit_attempts', 60),
+            'decay_minutes' => config('services.revenuecat.webhook_rate_limit_decay', 1),
+        ],
     ],
 
     /*
