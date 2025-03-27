@@ -12,7 +12,6 @@ use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
 /**
  * @property-read Customer|null $customer
  * @property-read string|null $revenuecat_id
- *
  */
 trait Billable
 {
