@@ -43,4 +43,4 @@ return new class extends Migration
         Schema::dropIfExists('revenuecat_entitlements');
         Schema::dropIfExists('revenuecat_subscriptions');
     }
-}; 
+};

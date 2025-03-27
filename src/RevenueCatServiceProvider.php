@@ -52,7 +52,7 @@ class RevenueCatServiceProvider extends ServiceProvider
     protected function registerWebhookRoute(): void
     {
         $endpoint = config('services.revenuecat.webhook_endpoint', 'webhook/revenuecat');
-        
+
         Route::post($endpoint, [WebhookController::class, 'handleWebhook'])
             ->name('cashier-revenue-cat.webhook')
             ->middleware(['revenuecat'])
