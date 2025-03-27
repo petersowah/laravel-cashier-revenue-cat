@@ -15,7 +15,7 @@ class WebhookTest extends TestCase
         parent::setUp();
         Event::fake();
 
-        Route::post('revenuecat/webhook', [WebhookController::class, 'handleWebhook'])
+        Route::post(config('cashier-revenue-cat.webhook.endpoint'), [WebhookController::class, 'handleWebhook'])
             ->name('cashier-revenue-cat.webhook');
     }
 
