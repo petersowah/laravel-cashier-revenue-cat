@@ -315,16 +315,29 @@ REVENUE_CAT_WEBHOOK_ENDPOINT=webhook/revenuecat
 ```
 
 2. Set up the webhook URL in your RevenueCat dashboard:
-```
-https://your-app.com/webhook/revenuecat
-```
+   - Log in to your RevenueCat dashboard at https://app.revenuecat.com
+   - Go to Project Settings (gear icon) in the left sidebar
+   - Click on "Webhooks" in the settings menu
+   - Click "Add Webhook"
+   - Enter your webhook URL (e.g., `https://your-app.com/webhook/revenuecat`)
+   - Select the events you want to receive
+   - RevenueCat will generate a webhook secret for you
 
 3. Configure your webhook secret in your `.env` file:
 ```env
 REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
 ```
 
-4. The package automatically handles the following webhook events:
+The webhook secret is used to verify that incoming webhook requests are actually from RevenueCat. The package uses this secret to verify the `X-RevenueCat-Signature` header in each webhook request.
+
+4. Publish the webhook handler file to customize the webhook handling:
+```bash
+php artisan cashier-revenue-cat:publish-webhook-handler
+```
+
+This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php`. You can then modify this file to customize how webhook events are handled.
+
+5. The package automatically handles the following webhook events:
 - Initial Purchase
 - Renewal
 - Cancellation
@@ -336,7 +349,7 @@ REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
 - Non-Renewing Purchase
 - Subscription Period Changed
 
-5. Listen to webhook events in your application:
+6. Listen to webhook events in your application:
 
 ```php
 // In your EventServiceProvider
@@ -347,7 +360,7 @@ protected $listen = [
 ];
 ```
 
-6. Create a webhook handler:
+7. Create a webhook handler:
 
 ```php
 namespace App\Listeners;

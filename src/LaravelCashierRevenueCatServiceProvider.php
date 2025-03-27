@@ -41,4 +41,16 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
         parent::register();
         $this->app->register(RouteServiceProvider::class);
     }
+
+    public function packageBooted(): void
+    {
+        $this->publishes([
+            __DIR__.'/../config/revenuecat.php' => config_path('revenuecat.php'),
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'cashier-revenue-cat-config');
+
+        $this->commands([
+            Console\Commands\PublishWebhookHandlerCommand::class,
+        ]);
+    }
 }
