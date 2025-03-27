@@ -48,4 +48,4 @@ interface WebhookPayload
      * The product currency.
      */
     public const PRODUCT_CURRENCY = 'event.product.currency';
-} 
+}
