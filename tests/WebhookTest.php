@@ -14,15 +14,13 @@ class WebhookTest extends TestCase
     {
         parent::setUp();
         Event::fake();
-
-        Route::post(config('cashier-revenue-cat.webhook.endpoint'), [WebhookController::class, 'handleWebhook'])
-            ->name('cashier-revenue-cat.webhook');
     }
 
     protected function defineEnvironment($app)
     {
         parent::getEnvironmentSetUp($app);
         $app['config']->set('cashier-revenue-cat.webhook.secret', 'test-secret');
+        $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
     }
 
     #[Test]
