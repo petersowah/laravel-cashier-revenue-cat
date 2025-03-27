@@ -45,7 +45,7 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->publishes([
-            __DIR__.'/../config/revenuecat.php' => config_path('revenuecat.php'),
+            __DIR__.'/../config/revenuecat.php' => config_path('cashier-revenue-cat.php'),
             __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'cashier-revenue-cat-config');
 
