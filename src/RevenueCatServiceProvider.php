@@ -2,8 +2,8 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
 
 class RevenueCatServiceProvider extends ServiceProvider
@@ -43,4 +43,4 @@ class RevenueCatServiceProvider extends ServiceProvider
             ->middleware('web')
             ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
     }
-} 
+}

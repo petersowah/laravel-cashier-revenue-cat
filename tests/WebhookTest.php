@@ -3,9 +3,7 @@
 namespace PeterSowah\LaravelCashierRevenueCat\Tests;
 
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
-use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
 use PHPUnit\Framework\Attributes\Test;
 
 class WebhookTest extends TestCase
