@@ -38,6 +38,7 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
 
     public function register(): void
     {
+        parent::register();
         $this->app->register(RouteServiceProvider::class);
     }
 }
