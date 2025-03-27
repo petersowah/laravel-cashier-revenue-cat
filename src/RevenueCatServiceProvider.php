@@ -14,6 +14,13 @@ class RevenueCatServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // First merge the services config
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/services.php',
+            'services'
+        );
+
+        // Then merge our package config
         $this->mergeConfigFrom(
             __DIR__.'/../config/cashier-revenue-cat.php',
             'cashier-revenue-cat'
@@ -28,7 +35,11 @@ class RevenueCatServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/cashier-revenue-cat.php' => config_path('cashier-revenue-cat.php'),
-            ], 'config');
+            ], 'revenuecat-config');
+
+            $this->publishes([
+                __DIR__.'/../database/migrations' => database_path('migrations'),
+            ], 'revenuecat-migrations');
         }
 
         $this->registerWebhookRoute();
@@ -40,7 +51,9 @@ class RevenueCatServiceProvider extends ServiceProvider
      */
     protected function registerWebhookRoute(): void
     {
-        Route::post(config('cashier-revenue-cat.webhook.endpoint'), [WebhookController::class, 'handleWebhook'])
+        $endpoint = config('services.revenuecat.webhook_endpoint', 'webhook/revenuecat');
+        
+        Route::post($endpoint, [WebhookController::class, 'handleWebhook'])
             ->name('cashier-revenue-cat.webhook')
             ->middleware(['revenuecat'])
             ->withoutMiddleware(['csrf']);
