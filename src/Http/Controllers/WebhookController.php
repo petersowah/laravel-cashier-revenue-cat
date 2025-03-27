@@ -25,24 +25,26 @@ class WebhookController
             'event_id' => $payload['event']['id'] ?? null,
         ]);
 
-        $signature = $request->header('X-RevenueCat-Signature');
+        $authHeader = $request->header('Authorization');
 
-        if (! $signature) {
-            Log::warning('RevenueCat webhook signature missing', [
+        if (! $authHeader) {
+            Log::warning('RevenueCat webhook authorization header missing', [
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
-            throw new HttpException(400, 'Missing webhook signature');
+            throw new HttpException(401, 'Missing authorization header');
         }
 
-        if (! WebhookSignature::verify($request->getContent(), $signature)) {
-            Log::warning('RevenueCat webhook signature verification failed', [
+        // Verify the authorization header
+        $expectedAuth = 'Bearer ' . config('cashier-revenue-cat.webhook.secret');
+        if ($authHeader !== $expectedAuth) {
+            Log::warning('RevenueCat webhook authorization header invalid', [
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'event_type' => $payload['event']['type'] ?? 'unknown',
-                'event_id' => $payload['event']['id'] ?? null,
+                'received' => $authHeader,
+                'expected' => $expectedAuth,
             ]);
-            throw new HttpException(400, 'Invalid webhook signature');
+            throw new HttpException(401, 'Invalid authorization header');
         }
 
         // Log successful webhook processing
