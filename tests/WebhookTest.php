@@ -53,10 +53,13 @@ class WebhookTest extends TestCase
     #[Test]
     public function it_handles_webhooks()
     {
+        $payload = $this->getWebhookPayload();
+        $content = json_encode($payload);
+
         $this->postJson(
             route('cashier-revenue-cat.webhook'),
-            $this->getWebhookPayload(),
-            ['X-RevenueCat-Signature' => $this->generateSignature($this->getWebhookPayload())]
+            $payload,
+            ['X-RevenueCat-Signature' => $this->generateSignature($content)]
         );
 
         Event::assertDispatched(WebhookReceived::class, function ($event) {
@@ -96,11 +99,9 @@ class WebhookTest extends TestCase
         ];
     }
 
-    protected function generateSignature(array $payload): string
+    protected function generateSignature(string $content): string
     {
         $secret = config('cashier-revenue-cat.webhook.secret');
-        $payloadString = json_encode($payload);
-
-        return hash_hmac('sha256', $payloadString, $secret);
+        return hash_hmac('sha256', $content, $secret);
     }
 }
