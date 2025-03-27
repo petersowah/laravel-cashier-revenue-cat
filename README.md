@@ -28,123 +28,120 @@ composer require petersowah/laravel-cashier-revenue-cat
 
 ## Configuration
 
-1. Publish the configuration file:
+You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="cashier-revenue-cat-config"
+php artisan vendor:publish --tag=revenuecat-config
 ```
 
-2. Publish the migration files:
-
-```bash
-php artisan vendor:publish --tag="cashier-revenue-cat-migrations"
-```
-
-3. Run the migrations:
-
-```bash
-php artisan migrate
-```
-
-4. Configure your environment variables:
-
-Copy the `.env.example` file to `.env` and update the values:
-
-```env
-# Required Configuration
-REVENUE_CAT_SECRET_KEY=your_secret_key_here
-REVENUE_CAT_PROJECT_ID=your_project_id_here
-REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
-
-# Optional Configuration
-REVENUE_CAT_WEBHOOK_URL=/revenue-cat/webhook
-REVENUE_CAT_API_VERSION=v2
-REVENUE_CAT_API_BASE_URL=https://api.revenuecat.com
-REVENUE_CAT_WEBHOOK_ENABLED=true
-REVENUE_CAT_WEBHOOK_QUEUE=default
-REVENUE_CAT_CACHE_TTL=3600
-REVENUE_CAT_CACHE_ENABLED=true
-REVENUE_CAT_LOG_LEVEL=debug
-REVENUE_CAT_LOG_ENABLED=true
-REVENUE_CAT_THROW_ON_ERROR=true
-REVENUE_CAT_RETRY_ON_ERROR=true
-REVENUE_CAT_MAX_RETRIES=3
-```
+This will create a `config/cashier-revenue-cat.php` file in your config folder.
 
 ### Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `REVENUE_CAT_SECRET_KEY` | Your RevenueCat secret key for backend operations | Yes | - |
-| `REVENUE_CAT_PROJECT_ID` | Your RevenueCat project ID | Yes | - |
-| `REVENUE_CAT_WEBHOOK_SECRET` | Secret for webhook signature verification | Yes | - |
-| `REVENUE_CAT_API_VERSION` | RevenueCat API version | No | `v2` |
-| `REVENUE_CAT_API_BASE_URL` | RevenueCat API base URL | No | `https://api.revenuecat.com` |
-| `REVENUE_CAT_WEBHOOK_TOLERANCE` | Webhook signature tolerance in seconds | No | `300` |
-| `REVENUE_CAT_WEBHOOK_ENDPOINT` | Webhook endpoint path | No | `webhook/revenuecat` |
-| `REVENUE_CAT_CACHE_ENABLED` | Enable/disable API response caching | No | `true` |
-| `REVENUE_CAT_CACHE_TTL` | Cache time to live in seconds | No | `3600` |
-| `REVENUE_CAT_CACHE_PREFIX` | Cache key prefix | No | `revenuecat` |
-| `REVENUE_CAT_LOGGING_ENABLED` | Enable/disable logging | No | `true` |
-| `REVENUE_CAT_LOGGING_CHANNEL` | Logging channel | No | `stack` |
-| `REVENUE_CAT_LOGGING_LEVEL` | Logging level | No | `debug` |
-| `REVENUE_CAT_THROW_EXCEPTIONS` | Throw exceptions on API errors | No | `true` |
-| `REVENUE_CAT_LOG_ERRORS` | Log API errors | No | `true` |
-| `REVENUE_CAT_RETRY_ON_ERROR` | Retry failed API calls | No | `true` |
-| `REVENUE_CAT_MAX_RETRIES` | Maximum number of retries | No | `3` |
-| `REVENUE_CAT_CURRENCY` | Default currency code | No | `USD` |
+Add these variables to your `.env` file:
 
-### Configuration Files
-
-The package uses two configuration files:
-
-1. `config/revenuecat.php` - Base configuration file that reads values from environment variables
-2. `config/services.php` - Service configuration that references the base config values
-
-The base configuration file (`config/revenuecat.php`) is published when you run:
-```bash
-php artisan vendor:publish --tag="cashier-revenue-cat-config"
+```env
+REVENUECAT_API_KEY=your_api_key
+REVENUECAT_PROJECT_ID=your_project_id
+REVENUECAT_WEBHOOK_SECRET=your_webhook_secret
+REVENUECAT_WEBHOOK_ENDPOINT=webhook/revenuecat  # Optional, defaults to 'webhook/revenuecat'
 ```
 
-You can then modify the values in your `.env` file, and they will be automatically loaded into the configuration.
+### Available Configuration Options
 
-The service configuration in `config/services.php` should reference these values using the `config()` helper:
-
+#### API Configuration
 ```php
-'revenuecat' => [
-    'key' => config('revenuecat.secret_key'),
-    'project_id' => config('revenuecat.project_id'),
-    'version' => config('revenuecat.api_version', 'v2'),
-    'base_url' => config('revenuecat.api_base_url', 'https://api.revenuecat.com'),
-    'webhook_secret' => config('revenuecat.webhook_secret'),
-    'webhook_tolerance' => config('revenuecat.webhook_tolerance', 300),
-    'webhook_endpoint' => config('revenuecat.webhook_endpoint', 'webhook/revenuecat'),
-    'cache_enabled' => config('revenuecat.cache_enabled', true),
-    'cache_ttl' => config('revenuecat.cache_ttl', 3600),
-    'cache_prefix' => config('revenuecat.cache_prefix', 'revenuecat'),
-    'logging_enabled' => config('revenuecat.logging_enabled', true),
-    'logging_channel' => config('revenuecat.logging_channel', 'stack'),
-    'logging_level' => config('revenuecat.logging_level', 'debug'),
-    'throw_exceptions' => config('revenuecat.throw_exceptions', true),
-    'log_errors' => config('revenuecat.log_errors', true),
-    'retry_on_error' => config('revenuecat.retry_on_error', true),
-    'max_retries' => config('revenuecat.max_retries', 3),
-    'currency' => config('revenuecat.currency', 'USD'),
+'api' => [
+    'key' => env('REVENUECAT_API_KEY'),
+    'project_id' => env('REVENUECAT_PROJECT_ID'),
+    'version' => env('REVENUECAT_API_VERSION', 'v2'),
+    'base_url' => env('REVENUECAT_API_BASE_URL', 'https://api.revenuecat.com'),
 ],
 ```
 
-This structure follows Laravel's best practices for configuration management and ensures that your configuration values are properly cached in production.
-
-5. Update your `User` model to use the RevenueCat Billable trait:
-
+#### Webhook Configuration
 ```php
-use PeterSowah\LaravelCashierRevenueCat\Billable;
-
-class User extends Authenticatable
-{
-    use Billable;
-}
+'webhook' => [
+    'secret' => env('REVENUECAT_WEBHOOK_SECRET'),
+    'tolerance' => env('REVENUECAT_WEBHOOK_TOLERANCE', 300),
+    'endpoint' => env('REVENUECAT_WEBHOOK_ENDPOINT', 'webhook/revenuecat'),
+    'allowed_ips' => env('REVENUECAT_WEBHOOK_ALLOWED_IPS', ''),
+    'rate_limit' => [
+        'enabled' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED', true),
+        'max_attempts' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ATTEMPTS', 60),
+        'decay_minutes' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_DECAY', 1),
+    ],
+],
 ```
+
+#### Cache Configuration
+```php
+'cache' => [
+    'enabled' => env('REVENUECAT_CACHE_ENABLED', true),
+    'ttl' => env('REVENUECAT_CACHE_TTL', 3600),
+    'prefix' => env('REVENUECAT_CACHE_PREFIX', 'revenuecat'),
+],
+```
+
+#### Logging Configuration
+```php
+'logging' => [
+    'enabled' => env('REVENUECAT_LOGGING_ENABLED', true),
+    'channel' => env('REVENUECAT_LOGGING_CHANNEL', 'stack'),
+    'level' => env('REVENUECAT_LOGGING_LEVEL', 'debug'),
+],
+```
+
+#### Error Handling Configuration
+```php
+'error_handling' => [
+    'throw_exceptions' => env('REVENUECAT_THROW_EXCEPTIONS', true),
+    'log_errors' => env('REVENUECAT_LOG_ERRORS', true),
+    'retry_on_error' => env('REVENUECAT_RETRY_ON_ERROR', true),
+    'max_retries' => env('REVENUECAT_MAX_RETRIES', 3),
+],
+```
+
+#### Other Configuration
+```php
+'currency' => env('REVENUECAT_CURRENCY', 'USD'),
+'model' => [
+    'user' => config('auth.providers.users.model', \Illuminate\Foundation\Auth\User::class),
+],
+```
+
+### Webhook Security
+
+The package includes several security features for webhooks:
+
+1. **Signature Verification**: All webhooks are verified using the `X-RevenueCat-Signature` header
+2. **Rate Limiting**: By default, webhooks are limited to 60 requests per minute per IP
+3. **IP Whitelisting**: You can restrict webhook access to specific IP addresses
+4. **CSRF Protection**: Webhook routes are automatically excluded from CSRF protection
+
+To configure webhook security:
+
+```env
+# Rate limiting (default: 60 requests per minute)
+REVENUECAT_WEBHOOK_RATE_LIMIT_ATTEMPTS=60
+REVENUECAT_WEBHOOK_RATE_LIMIT_DECAY=1
+
+# IP whitelisting (comma-separated list)
+REVENUECAT_WEBHOOK_ALLOWED_IPS=1.2.3.4,5.6.7.8
+
+# Disable rate limiting if needed
+REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED=false
+```
+
+### Custom Webhook Endpoint
+
+To use a custom webhook endpoint, set the `REVENUECAT_WEBHOOK_ENDPOINT` environment variable:
+
+```env
+REVENUECAT_WEBHOOK_ENDPOINT=api/revenuecat/webhook
+```
+
+The webhook URL will be: `https://your-domain.com/api/revenuecat/webhook`
 
 ## Mobile App Integration
 
