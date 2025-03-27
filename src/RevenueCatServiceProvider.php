@@ -25,7 +25,8 @@ class RevenueCatServiceProvider extends PackageServiceProvider
                 'create_revenuecat_subscriptions_table',
                 'create_revenuecat_entitlements_table',
             ])
-            ->hasRoute('web');
+            ->hasRoute('web')
+            ->hasMiddleware('revenuecat', VerifyWebhookSignature::class);
     }
 
     /**
@@ -34,12 +35,6 @@ class RevenueCatServiceProvider extends PackageServiceProvider
     public function register(): void
     {
         parent::register();
-
-        // First merge the services config
-        $this->mergeConfigFrom(
-            __DIR__.'/../config/services.php',
-            'services'
-        );
     }
 
     /**
@@ -48,8 +43,5 @@ class RevenueCatServiceProvider extends PackageServiceProvider
     public function boot(): void
     {
         parent::boot();
-
-        // Register the middleware
-        $this->app['router']->aliasMiddleware('revenuecat', VerifyWebhookSignature::class);
     }
 }

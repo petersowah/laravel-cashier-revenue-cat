@@ -13,10 +13,10 @@ return [
     */
 
     'api' => [
-        'key' => config('services.revenuecat.key'),
-        'project_id' => config('services.revenuecat.project_id'),
-        'version' => config('services.revenuecat.version', 'v2'),
-        'base_url' => config('services.revenuecat.base_url', 'https://api.revenuecat.com'),
+        'key' => env('REVENUECAT_API_KEY'),
+        'project_id' => env('REVENUECAT_PROJECT_ID'),
+        'version' => env('REVENUECAT_API_VERSION', 'v2'),
+        'base_url' => env('REVENUECAT_API_BASE_URL', 'https://api.revenuecat.com'),
     ],
 
     /*
@@ -30,14 +30,15 @@ return [
     */
 
     'webhook' => [
-        'secret' => config('services.revenuecat.webhook_secret'),
-        'tolerance' => config('services.revenuecat.webhook_tolerance', 300),
-        'endpoint' => config('services.revenuecat.webhook_endpoint', 'webhook/revenuecat'),
-        'allowed_ips' => config('services.revenuecat.webhook_allowed_ips', []),
+        'secret' => env('REVENUECAT_WEBHOOK_SECRET'),
+        'tolerance' => env('REVENUECAT_WEBHOOK_TOLERANCE', 300),
+        'endpoint' => env('REVENUECAT_WEBHOOK_ENDPOINT', 'webhook/revenuecat'),
+        'route_group' => env('REVENUECAT_ROUTE_GROUP', 'web'),
+        'allowed_ips' => env('REVENUECAT_WEBHOOK_ALLOWED_IPS', ''),
         'rate_limit' => [
-            'enabled' => config('services.revenuecat.webhook_rate_limit_enabled', true),
-            'max_attempts' => config('services.revenuecat.webhook_rate_limit_attempts', 60),
-            'decay_minutes' => config('services.revenuecat.webhook_rate_limit_decay', 1),
+            'enabled' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED', true),
+            'max_attempts' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ATTEMPTS', 60),
+            'decay_minutes' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_DECAY', 1),
         ],
     ],
 
@@ -52,9 +53,9 @@ return [
     */
 
     'cache' => [
-        'enabled' => config('services.revenuecat.cache_enabled', true),
-        'ttl' => config('services.revenuecat.cache_ttl', 3600),
-        'prefix' => config('services.revenuecat.cache_prefix', 'revenuecat'),
+        'enabled' => env('REVENUECAT_CACHE_ENABLED', true),
+        'ttl' => env('REVENUECAT_CACHE_TTL', 3600),
+        'prefix' => env('REVENUECAT_CACHE_PREFIX', 'revenuecat'),
     ],
 
     /*
@@ -67,9 +68,9 @@ return [
     */
 
     'logging' => [
-        'enabled' => config('services.revenuecat.logging_enabled', true),
-        'channel' => config('services.revenuecat.logging_channel', 'stack'),
-        'level' => config('services.revenuecat.logging_level', 'debug'),
+        'enabled' => env('REVENUECAT_LOGGING_ENABLED', true),
+        'channel' => env('REVENUECAT_LOGGING_CHANNEL', 'stack'),
+        'level' => env('REVENUECAT_LOGGING_LEVEL', 'debug'),
     ],
 
     /*
@@ -82,14 +83,22 @@ return [
     */
 
     'error_handling' => [
-        'throw_exceptions' => config('services.revenuecat.throw_exceptions', true),
-        'log_errors' => config('services.revenuecat.log_errors', true),
-        'retry_on_error' => config('services.revenuecat.retry_on_error', true),
-        'max_retries' => config('services.revenuecat.max_retries', 3),
+        'throw_exceptions' => env('REVENUECAT_THROW_EXCEPTIONS', true),
+        'log_errors' => env('REVENUECAT_LOG_ERRORS', true),
+        'retry_on_error' => env('REVENUECAT_RETRY_ON_ERROR', true),
+        'max_retries' => env('REVENUECAT_MAX_RETRIES', 3),
     ],
 
-    'currency' => config('services.revenuecat.currency', 'USD'),
+    /*
+    |--------------------------------------------------------------------------
+    | Other Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Additional configuration options for the package.
+    |
+    */
 
+    'currency' => env('REVENUECAT_CURRENCY', 'USD'),
     'model' => [
         'user' => config('auth.providers.users.model', \Illuminate\Foundation\Auth\User::class),
     ],

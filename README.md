@@ -34,7 +34,7 @@ The package automatically registers its routes when installed. However, if you'r
 ```php
 'providers' => [
     // ...
-    PeterSowah\LaravelCashierRevenueCat\RevenueCatServiceProvider::class,
+    PeterSowah\LaravelCashierRevenueCat\LaravelCashierRevenueCatServiceProvider::class,
 ],
 ```
 
@@ -73,7 +73,7 @@ You should see the webhook route listed with the name `cashier-revenue-cat.webho
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag=revenuecat-config
+php artisan vendor:publish --tag=cashier-revenue-cat-config
 ```
 
 This will create a `config/cashier-revenue-cat.php` file in your config folder.
@@ -83,13 +83,47 @@ This will create a `config/cashier-revenue-cat.php` file in your config folder.
 Add these variables to your `.env` file:
 
 ```env
+# API Configuration
 REVENUECAT_API_KEY=your_api_key
 REVENUECAT_PROJECT_ID=your_project_id
-REVENUECAT_WEBHOOK_SECRET=your_webhook_secret
-REVENUECAT_WEBHOOK_ENDPOINT=webhook/revenuecat  # Optional, defaults to 'webhook/revenuecat'
+REVENUECAT_API_VERSION=v2  # Optional, defaults to 'v2'
+REVENUECAT_API_BASE_URL=https://api.revenuecat.com  # Optional, defaults to 'https://api.revenuecat.com'
+
+# Webhook Configuration
+REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
+REVENUECAT_WEBHOOK_ENDPOINT=webhook/revenuecat
+REVENUECAT_WEBHOOK_TOLERANCE=300  # Optional, defaults to 300 seconds
+REVENUECAT_ROUTE_GROUP=web  # Optional, defaults to 'web'
+REVENUECAT_WEBHOOK_ALLOWED_IPS=  # Optional, comma-separated list of allowed IPs
+
+# Webhook Rate Limiting
+REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED=true  # Optional, defaults to true
+REVENUECAT_WEBHOOK_RATE_LIMIT_ATTEMPTS=60  # Optional, defaults to 60 attempts
+REVENUECAT_WEBHOOK_RATE_LIMIT_DECAY=1  # Optional, defaults to 1 minute
+
+# Cache Configuration
+REVENUECAT_CACHE_ENABLED=true  # Optional, defaults to true
+REVENUECAT_CACHE_TTL=3600  # Optional, defaults to 3600 seconds
+REVENUECAT_CACHE_PREFIX=revenuecat  # Optional, defaults to 'revenuecat'
+
+# Logging Configuration
+REVENUECAT_LOGGING_ENABLED=true  # Optional, defaults to true
+REVENUECAT_LOGGING_CHANNEL=stack  # Optional, defaults to 'stack'
+REVENUECAT_LOGGING_LEVEL=debug  # Optional, defaults to 'debug'
+
+# Error Handling Configuration
+REVENUECAT_THROW_EXCEPTIONS=true  # Optional, defaults to true
+REVENUECAT_LOG_ERRORS=true  # Optional, defaults to true
+REVENUECAT_RETRY_ON_ERROR=true  # Optional, defaults to true
+REVENUECAT_MAX_RETRIES=3  # Optional, defaults to 3
+
+# Other Configuration
+REVENUECAT_CURRENCY=USD  # Optional, defaults to 'USD'
 ```
 
 ### Available Configuration Options
+
+The package configuration is organized into several sections:
 
 #### API Configuration
 ```php
@@ -107,6 +141,7 @@ REVENUECAT_WEBHOOK_ENDPOINT=webhook/revenuecat  # Optional, defaults to 'webhook
     'secret' => env('REVENUECAT_WEBHOOK_SECRET'),
     'tolerance' => env('REVENUECAT_WEBHOOK_TOLERANCE', 300),
     'endpoint' => env('REVENUECAT_WEBHOOK_ENDPOINT', 'webhook/revenuecat'),
+    'route_group' => env('REVENUECAT_ROUTE_GROUP', 'web'),
     'allowed_ips' => env('REVENUECAT_WEBHOOK_ALLOWED_IPS', ''),
     'rate_limit' => [
         'enabled' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED', true),
@@ -187,7 +222,7 @@ The webhook URL will be: `https://your-domain.com/api/revenuecat/webhook`
 
 ### Route Group Configuration
 
-By default, the webhook route is registered in the `web` middleware group. You can change this by setting the `REVENUECAT_ROUTE_GROUP` environment variable:
+By default, the webhook route is registered in both the `web` and `webhooks` middleware groups. You can change this by setting the `REVENUECAT_ROUTE_GROUP` environment variable:
 
 ```env
 # For API routes (with api middleware)
@@ -364,7 +399,7 @@ $products = $user->subscription()->getProducts();
 1. The package automatically registers a webhook route at `/webhook/revenuecat`. You can configure the endpoint in your `.env` file:
 
 ```env
-REVENUE_CAT_WEBHOOK_ENDPOINT=webhook/revenuecat
+REVENUECAT_WEBHOOK_ENDPOINT=webhook/revenuecat
 ```
 
 2. Set up the webhook URL in your RevenueCat dashboard:
@@ -378,7 +413,7 @@ REVENUE_CAT_WEBHOOK_ENDPOINT=webhook/revenuecat
 
 3. Configure your webhook secret in your `.env` file:
 ```env
-REVENUE_CAT_WEBHOOK_SECRET=your_webhook_secret_here
+REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
 ```
 
 The webhook secret is used to verify that incoming webhook requests are actually from RevenueCat. The package uses this secret to verify the `X-RevenueCat-Signature` header in each webhook request.
@@ -388,7 +423,7 @@ The webhook secret is used to verify that incoming webhook requests are actually
 php artisan cashier-revenue-cat:publish-webhook-handler
 ```
 
-This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php`. You can then modify this file to customize how webhook events are handled.
+This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php` with the namespace `App\Listeners`. You can then modify this file to customize how webhook events are handled.
 
 5. The package automatically handles the following webhook events:
 - INITIAL_PURCHASE
@@ -418,6 +453,7 @@ protected $listen = [
 ```php
 namespace App\Listeners;
 
+use Illuminate\Support\Facades\Log;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 
 class HandleRevenueCatWebhook
@@ -427,18 +463,103 @@ class HandleRevenueCatWebhook
         $payload = $event->payload;
         $type = $payload['event']['type'];
 
+        Log::info('RevenueCat webhook received', [
+            'type' => $type,
+            'payload' => $payload,
+        ]);
+
         switch ($type) {
             case 'INITIAL_PURCHASE':
-                // Handle initial purchase
+                $this->handleInitialPurchase($payload);
                 break;
             case 'RENEWAL':
-                // Handle renewal
+                $this->handleRenewal($payload);
                 break;
             case 'CANCELLATION':
-                // Handle cancellation
+                $this->handleCancellation($payload);
                 break;
-            // ... handle other event types
+            case 'NON_RENEWING_PURCHASE':
+                $this->handleNonRenewingPurchase($payload);
+                break;
+            case 'SUBSCRIPTION_PAUSED':
+                $this->handleSubscriptionPaused($payload);
+                break;
+            case 'SUBSCRIPTION_RESUMED':
+                $this->handleSubscriptionResumed($payload);
+                break;
+            case 'PRODUCT_CHANGE':
+                $this->handleProductChange($payload);
+                break;
+            case 'BILLING_ISSUE':
+                $this->handleBillingIssue($payload);
+                break;
+            case 'REFUND':
+                $this->handleRefund($payload);
+                break;
+            case 'SUBSCRIPTION_PERIOD_CHANGED':
+                $this->handleSubscriptionPeriodChanged($payload);
+                break;
         }
+    }
+
+    protected function handleInitialPurchase(array $payload): void
+    {
+        // Handle initial purchase
+        Log::info('Handling initial purchase', ['payload' => $payload]);
+    }
+
+    protected function handleRenewal(array $payload): void
+    {
+        // Handle renewal
+        Log::info('Handling renewal', ['payload' => $payload]);
+    }
+
+    protected function handleCancellation(array $payload): void
+    {
+        // Handle cancellation
+        Log::info('Handling cancellation', ['payload' => $payload]);
+    }
+
+    protected function handleNonRenewingPurchase(array $payload): void
+    {
+        // Handle non-renewing purchase
+        Log::info('Handling non-renewing purchase', ['payload' => $payload]);
+    }
+
+    protected function handleSubscriptionPaused(array $payload): void
+    {
+        // Handle subscription paused
+        Log::info('Handling subscription paused', ['payload' => $payload]);
+    }
+
+    protected function handleSubscriptionResumed(array $payload): void
+    {
+        // Handle subscription resumed
+        Log::info('Handling subscription resumed', ['payload' => $payload]);
+    }
+
+    protected function handleProductChange(array $payload): void
+    {
+        // Handle product change
+        Log::info('Handling product change', ['payload' => $payload]);
+    }
+
+    protected function handleBillingIssue(array $payload): void
+    {
+        // Handle billing issue
+        Log::info('Handling billing issue', ['payload' => $payload]);
+    }
+
+    protected function handleRefund(array $payload): void
+    {
+        // Handle refund
+        Log::info('Handling refund', ['payload' => $payload]);
+    }
+
+    protected function handleSubscriptionPeriodChanged(array $payload): void
+    {
+        // Handle subscription period changed
+        Log::info('Handling subscription period changed', ['payload' => $payload]);
     }
 }
 ```
@@ -449,40 +570,58 @@ The webhook endpoint is automatically secured with signature verification using 
 
 The package includes migrations for the following tables:
 
-- `revenue_cat_customers`: Stores RevenueCat customer information
+- `customers`: Stores RevenueCat customer information
   - `id`: Primary key
   - `revenuecat_id`: RevenueCat's customer identifier
   - `email`: Customer's email address
   - `display_name`: Customer's display name
   - `phone_number`: Customer's phone number
   - `metadata`: JSON column for additional customer attributes
+  - `billable_type`: Polymorphic relationship type
+  - `billable_id`: Polymorphic relationship ID
   - Timestamps
 
-- `revenue_cat_subscriptions`: Stores subscription information
+- `subscriptions`: Stores subscription information
   - `id`: Primary key
-  - `customer_id`: Foreign key to revenue_cat_customers
+  - `billable_type`: Polymorphic relationship type
+  - `billable_id`: Polymorphic relationship ID
   - `revenuecat_id`: RevenueCat's subscription identifier
   - `name`: Subscription name
   - `product_id`: RevenueCat product identifier
   - `price_id`: RevenueCat price identifier
   - `status`: Subscription status
-  - `cancel_at_period_end`: Whether subscription will cancel at period end
+  - `current_period_start`: Start of current billing period
+  - `current_period_end`: End of current billing period
+  - `trial_start`: Start of trial period
+  - `trial_end`: End of trial period
   - `canceled_at`: When the subscription was canceled
-  - `trial_ends_at`: When the trial period ends
-  - `ends_at`: When the subscription ends
-  - `last_event_at`: When the last event occurred
+  - `ended_at`: When the subscription ended
+  - `paused_at`: When the subscription was paused
+  - `resumed_at`: When the subscription was resumed
+  - `metadata`: JSON column for additional subscription attributes
   - Timestamps
 
-- `revenue_cat_receipts`: Stores transaction receipts
+- `subscription_items`: Stores subscription line items
   - `id`: Primary key
-  - `customer_id`: Foreign key to revenue_cat_customers
+  - `subscription_id`: Foreign key to subscriptions
+  - `product_id`: RevenueCat product identifier
+  - `price_id`: RevenueCat price identifier
+  - `quantity`: Quantity of items
+  - `metadata`: JSON column for additional item attributes
+  - Timestamps
+
+- `receipts`: Stores transaction receipts
+  - `id`: Primary key
+  - `billable_type`: Polymorphic relationship type
+  - `billable_id`: Polymorphic relationship ID
   - `transaction_id`: RevenueCat transaction identifier
   - `store`: App store identifier (App Store/Play Store)
   - `environment`: Production or sandbox
   - `price`: Transaction amount
   - `currency`: Transaction currency
-  - `purchased_at`: When the purchase was made
-  - `expires_at`: When the purchase expires
+  - `purchase_date`: When the purchase was made
+  - `expiration_date`: When the purchase expires
+  - `metadata`: JSON column for additional receipt attributes
   - Timestamps
 
 ## Models

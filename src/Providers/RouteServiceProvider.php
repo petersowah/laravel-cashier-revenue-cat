@@ -28,7 +28,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function configureRoutes(): void
     {
-        Route::middleware('web')
+        Route::middleware(config('cashier-revenue-cat.webhook.route_group', 'web'))
             ->group(function () {
                 Route::post(
                     config('cashier-revenue-cat.webhook.endpoint', 'webhook/revenuecat'),

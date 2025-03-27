@@ -46,8 +46,11 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/cashier-revenue-cat.php' => config_path('cashier-revenue-cat.php'),
-            __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'cashier-revenue-cat-config');
+
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'cashier-revenue-cat-migrations');
 
         $this->commands([
             Commands\PublishWebhookHandlerCommand::class,

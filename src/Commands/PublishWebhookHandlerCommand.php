@@ -26,7 +26,14 @@ class PublishWebhookHandlerCommand extends Command
             }
         }
 
-        File::copy($sourcePath, $targetPath);
+        $content = File::get($sourcePath);
+        $content = str_replace(
+            'namespace PeterSowah\\LaravelCashierRevenueCat\\Listeners;',
+            'namespace App\\Listeners;',
+            $content
+        );
+
+        File::put($targetPath, $content);
         $this->info('Webhook handler published successfully!');
     }
 }
