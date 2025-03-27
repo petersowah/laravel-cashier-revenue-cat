@@ -23,7 +23,7 @@ class RevenueCatServiceProvider extends ServiceProvider
         // Then merge our package config
         $this->mergeConfigFrom(
             __DIR__.'/../config/cashier-revenue-cat.php',
-            'cashier-revenue-cat'
+            'revenuecat'
         );
     }
 
@@ -34,7 +34,7 @@ class RevenueCatServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/cashier-revenue-cat.php' => config_path('cashier-revenue-cat.php'),
+                __DIR__.'/../config/cashier-revenue-cat.php' => config_path('revenuecat.php'),
             ], 'revenuecat-config');
 
             $this->publishes([
