@@ -41,6 +41,6 @@ class RevenueCatServiceProvider extends ServiceProvider
         Route::post(config('cashier-revenue-cat.webhook.endpoint'), [WebhookController::class, 'handleWebhook'])
             ->name('cashier-revenue-cat.webhook')
             ->middleware('web')
-            ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+            ->withoutMiddleware(['csrf']);
     }
 }
