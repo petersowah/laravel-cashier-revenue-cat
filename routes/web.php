@@ -11,4 +11,4 @@ Route::group(['middleware' => $routeGroup], function () use ($endpoint) {
         ->name('cashier-revenue-cat.webhook')
         ->middleware(['revenuecat'])
         ->withoutMiddleware(['csrf']);
-}); 
+});

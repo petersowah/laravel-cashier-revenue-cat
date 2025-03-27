@@ -2,9 +2,9 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat;
 
+use PeterSowah\LaravelCashierRevenueCat\Http\Middleware\VerifyRevenueCatWebhook;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use PeterSowah\LaravelCashierRevenueCat\Http\Middleware\VerifyRevenueCatWebhook;
 
 class RevenueCatServiceProvider extends PackageServiceProvider
 {
