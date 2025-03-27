@@ -1,6 +1,6 @@
 <?php
 
-namespace PeterSowah\LaravelCashierRevenueCat\Console\Commands;
+namespace PeterSowah\LaravelCashierRevenueCat\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -13,7 +13,7 @@ class PublishWebhookHandlerCommand extends Command
 
     public function handle(): void
     {
-        $sourcePath = __DIR__.'/../../Listeners/HandleRevenueCatWebhook.php';
+        $sourcePath = __DIR__.'/../Listeners/HandleRevenueCatWebhook.php';
         $targetPath = app_path('Listeners/HandleRevenueCatWebhook.php');
 
         if (! File::exists(dirname($targetPath))) {

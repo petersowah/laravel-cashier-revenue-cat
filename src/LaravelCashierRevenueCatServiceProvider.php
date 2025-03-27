@@ -50,7 +50,7 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
         ], 'cashier-revenue-cat-config');
 
         $this->commands([
-            Console\Commands\PublishWebhookHandlerCommand::class,
+            Commands\PublishWebhookHandlerCommand::class,
         ]);
     }
 }
