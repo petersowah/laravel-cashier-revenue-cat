@@ -26,6 +26,48 @@ You can install the package via composer:
 composer require petersowah/laravel-cashier-revenue-cat
 ```
 
+## Route Registration
+
+The package automatically registers its routes when installed. However, if you're experiencing issues with routes not being registered, follow these steps:
+
+1. Verify the service provider is registered in `config/app.php`:
+```php
+'providers' => [
+    // ...
+    PeterSowah\LaravelCashierRevenueCat\RevenueCatServiceProvider::class,
+],
+```
+
+2. Clear your route cache:
+```bash
+php artisan route:clear
+php artisan config:clear
+php artisan cache:clear
+```
+
+3. Verify the routes are registered:
+```bash
+php artisan route:list | grep revenuecat
+```
+
+You should see the webhook route listed with the name `cashier-revenue-cat.webhook`.
+
+### Common Route Registration Issues
+
+1. **Routes Not Showing Up**
+   - Make sure you've published the package's configuration
+   - Verify the service provider is registered in `config/app.php`
+   - Check that your `.env` file has the required configuration
+
+2. **Webhook Route Not Accessible**
+   - Verify the `REVENUECAT_WEBHOOK_ENDPOINT` is set correctly in your `.env`
+   - Check that the route group (`web` or `api`) is appropriate for your use case
+   - Ensure your web server is configured to handle the route
+
+3. **CSRF Token Issues**
+   - The webhook route is automatically excluded from CSRF protection
+   - If you're still getting CSRF errors, verify the route is registered in the correct middleware group
+
 ## Configuration
 
 You can publish the config file with:
@@ -349,16 +391,16 @@ php artisan cashier-revenue-cat:publish-webhook-handler
 This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php`. You can then modify this file to customize how webhook events are handled.
 
 5. The package automatically handles the following webhook events:
-- Initial Purchase
-- Renewal
-- Cancellation
-- Subscription Paused
-- Subscription Resumed
-- Product Change
-- Billing Issue
-- Refund
-- Non-Renewing Purchase
-- Subscription Period Changed
+- INITIAL_PURCHASE
+- RENEWAL
+- CANCELLATION
+- NON_RENEWING_PURCHASE
+- SUBSCRIPTION_PAUSED
+- SUBSCRIPTION_RESUMED
+- PRODUCT_CHANGE
+- BILLING_ISSUE
+- REFUND
+- SUBSCRIPTION_PERIOD_CHANGED
 
 6. Listen to webhook events in your application:
 

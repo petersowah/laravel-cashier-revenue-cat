@@ -2,7 +2,7 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat;
 
-use PeterSowah\LaravelCashierRevenueCat\Http\Middleware\VerifyRevenueCatWebhook;
+use PeterSowah\LaravelCashierRevenueCat\Http\Middleware\VerifyWebhookSignature;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -25,8 +25,7 @@ class RevenueCatServiceProvider extends PackageServiceProvider
                 'create_revenuecat_subscriptions_table',
                 'create_revenuecat_entitlements_table',
             ])
-            ->hasRoute('web')
-            ->hasMiddleware('revenuecat', VerifyRevenueCatWebhook::class);
+            ->hasRoute('web');
     }
 
     /**
@@ -49,5 +48,8 @@ class RevenueCatServiceProvider extends PackageServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        // Register the middleware
+        $this->app['router']->aliasMiddleware('revenuecat', VerifyWebhookSignature::class);
     }
 }
