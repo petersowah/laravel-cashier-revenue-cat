@@ -102,6 +102,7 @@ class WebhookTest extends TestCase
     protected function generateSignature(string $content): string
     {
         $secret = config('cashier-revenue-cat.webhook.secret');
+
         return hash_hmac('sha256', $content, $secret);
     }
 }
