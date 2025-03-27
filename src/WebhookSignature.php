@@ -16,6 +16,7 @@ class WebhookSignature
 
         if (! $secret) {
             Log::error('Webhook secret not configured');
+
             return false;
         }
 
