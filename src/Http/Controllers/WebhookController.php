@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use PeterSowah\LaravelCashierRevenueCat\WebhookSignature;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class WebhookController
 {
@@ -19,14 +20,12 @@ class WebhookController
 
         if (! $signature) {
             Log::warning('RevenueCat webhook received without signature');
-
-            return response('', 400);
+            throw new HttpException(400, 'Missing webhook signature');
         }
 
         if (! WebhookSignature::verify($request->getContent(), $signature)) {
             Log::warning('RevenueCat webhook signature verification failed');
-
-            return response('', 400);
+            throw new HttpException(400, 'Invalid webhook signature');
         }
 
         event(new WebhookReceived($payload));
