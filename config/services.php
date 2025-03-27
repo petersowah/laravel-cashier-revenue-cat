@@ -9,6 +9,7 @@ return [
         'webhook_secret' => env('REVENUECAT_WEBHOOK_SECRET'),
         'webhook_tolerance' => env('REVENUECAT_WEBHOOK_TOLERANCE', 300),
         'webhook_endpoint' => env('REVENUECAT_WEBHOOK_ENDPOINT', 'webhook/revenuecat'),
+        'route_group' => env('REVENUECAT_ROUTE_GROUP', 'web'),
         'webhook_allowed_ips' => env('REVENUECAT_WEBHOOK_ALLOWED_IPS', ''),
         'webhook_rate_limit_enabled' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED', true),
         'webhook_rate_limit_attempts' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ATTEMPTS', 60),

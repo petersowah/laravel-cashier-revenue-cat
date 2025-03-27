@@ -2,28 +2,44 @@
 
 namespace PeterSowah\LaravelCashierRevenueCat;
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
-use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 use PeterSowah\LaravelCashierRevenueCat\Http\Middleware\VerifyRevenueCatWebhook;
 
-class RevenueCatServiceProvider extends ServiceProvider
+class RevenueCatServiceProvider extends PackageServiceProvider
 {
+    /**
+     * Configure the package.
+     */
+    public function configurePackage(Package $package): void
+    {
+        /*
+         * This class is a Package Service Provider
+         *
+         * More info: https://github.com/spatie/laravel-package-tools
+         */
+        $package
+            ->name('laravel-cashier-revenue-cat')
+            ->hasConfigFile('revenuecat')
+            ->hasMigrations([
+                'create_revenuecat_subscriptions_table',
+                'create_revenuecat_entitlements_table',
+            ])
+            ->hasRoute('web')
+            ->hasMiddleware('revenuecat', VerifyRevenueCatWebhook::class);
+    }
+
     /**
      * Register any application services.
      */
     public function register(): void
     {
+        parent::register();
+
         // First merge the services config
         $this->mergeConfigFrom(
             __DIR__.'/../config/services.php',
             'services'
-        );
-
-        // Then merge our package config
-        $this->mergeConfigFrom(
-            __DIR__.'/../config/cashier-revenue-cat.php',
-            'revenuecat'
         );
     }
 
@@ -32,38 +48,6 @@ class RevenueCatServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../config/cashier-revenue-cat.php' => config_path('revenuecat.php'),
-            ], 'revenuecat-config');
-
-            $this->publishes([
-                __DIR__.'/../database/migrations' => database_path('migrations'),
-            ], 'revenuecat-migrations');
-        }
-
-        $this->registerWebhookRoute();
-        $this->registerMiddleware();
-    }
-
-    /**
-     * Register the webhook route.
-     */
-    protected function registerWebhookRoute(): void
-    {
-        $endpoint = config('services.revenuecat.webhook_endpoint', 'webhook/revenuecat');
-
-        Route::post($endpoint, [WebhookController::class, 'handleWebhook'])
-            ->name('cashier-revenue-cat.webhook')
-            ->middleware(['revenuecat'])
-            ->withoutMiddleware(['csrf']);
-    }
-
-    /**
-     * Register the middleware.
-     */
-    protected function registerMiddleware(): void
-    {
-        $this->app['router']->aliasMiddleware('revenuecat', VerifyRevenueCatWebhook::class);
+        parent::boot();
     }
 }

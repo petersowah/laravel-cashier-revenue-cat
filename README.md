@@ -143,6 +143,20 @@ REVENUECAT_WEBHOOK_ENDPOINT=api/revenuecat/webhook
 
 The webhook URL will be: `https://your-domain.com/api/revenuecat/webhook`
 
+### Route Group Configuration
+
+By default, the webhook route is registered in the `web` middleware group. You can change this by setting the `REVENUECAT_ROUTE_GROUP` environment variable:
+
+```env
+# For API routes (with api middleware)
+REVENUECAT_ROUTE_GROUP=api
+
+# For web routes (with web middleware)
+REVENUECAT_ROUTE_GROUP=web
+```
+
+This affects which middleware group the webhook route belongs to. The default is `web`.
+
 ## Mobile App Integration
 
 ### iOS Integration
