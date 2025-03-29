@@ -416,14 +416,40 @@ REVENUECAT_WEBHOOK_ENDPOINT=webhook/revenuecat
 REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
 ```
 
-The webhook secret is used to verify that incoming webhook requests are actually from RevenueCat. The package uses this secret to verify the `X-RevenueCat-Signature` header in each webhook request.
+4. You have two options for handling webhooks:
 
-4. Publish the webhook handler file to customize the webhook handling:
-```bash
-php artisan cashier-revenue-cat:publish-webhook-handler
-```
+   a. Use the default webhook handler:
+   ```env
+   # The default handler will be used if not specified
+   REVENUECAT_WEBHOOK_HANDLER=PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController@handleWebhook
+   ```
 
-This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php` with the namespace `App\Listeners`. You can then modify this file to customize how webhook events are handled.
+   b. Create your own webhook handler:
+   ```bash
+   php artisan cashier-revenue-cat:publish-webhook-handler
+   ```
+   This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php`. Then configure it in your `.env`:
+   ```env
+   REVENUECAT_WEBHOOK_HANDLER=App\Listeners\HandleRevenueCatWebhook@handle
+   ```
+
+   Your custom handler should implement the following interface:
+   ```php
+   namespace App\Listeners;
+
+   use Illuminate\Http\Request;
+   use Illuminate\Http\Response;
+
+   class HandleRevenueCatWebhook
+   {
+       public function handle(Request $request): Response
+       {
+           // Your custom webhook handling logic here
+           
+           return response('', 200);
+       }
+   }
+   ```
 
 5. The package automatically handles the following webhook events:
 - INITIAL_PURCHASE
@@ -448,7 +474,7 @@ protected $listen = [
 ];
 ```
 
-7. Create a webhook handler:
+7. The default webhook handler includes comprehensive event handling:
 
 ```php
 namespace App\Listeners;
