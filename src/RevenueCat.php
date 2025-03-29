@@ -10,7 +10,7 @@ class RevenueCat
 {
     protected string $apiKey;
 
-    protected string $baseUrl = 'https://api.revenuecat.com/v2';
+    protected string $baseUrl = 'https://api.revenuecat.com';
 
     protected string $projectId;
 
@@ -43,29 +43,29 @@ class RevenueCat
         ]);
     }
 
-    public function getSubscriber(string $appUserId): array
+    public function getCustomer(string $appUserId): array
     {
-        return $this->get("/projects/{$this->projectId}/customers/{$appUserId}");
+        return $this->get("/v2/projects/{$this->projectId}/customers/{$appUserId}");
     }
 
-    public function createSubscriber(string $appUserId, array $attributes = []): array
+    public function createCustomer(string $appUserId, array $attributes = []): array
     {
-        return $this->post('/subscribers', array_merge(['app_user_id' => $appUserId], $attributes));
+        return $this->post("/v2/projects/{$this->projectId}/customers", array_merge(['app_user_id' => $appUserId], $attributes));
     }
 
-    public function updateSubscriber(string $appUserId, array $attributes): array
+    public function updateCustomer(string $appUserId, array $attributes): array
     {
-        return $this->patch("/subscribers/{$appUserId}", $attributes);
+        return $this->patch("/v2/projects/{$this->projectId}/customers/{$appUserId}", $attributes);
     }
 
-    public function deleteSubscriber(string $appUserId): array
+    public function deleteCustomer(string $appUserId): array
     {
-        return $this->delete("/subscribers/{$appUserId}");
+        return $this->delete("/v2/projects/{$this->projectId}/customers/{$appUserId}");
     }
 
     public function getOfferings(?string $appUserId = null): array
     {
-        $uri = '/offerings';
+        $uri = "/v2/projects/{$this->projectId}/offerings";
         if ($appUserId) {
             $uri .= "?app_user_id={$appUserId}";
         }
@@ -75,12 +75,12 @@ class RevenueCat
 
     public function getProducts(): array
     {
-        return $this->get('/products');
+        return $this->get("/v2/projects/{$this->projectId}/products");
     }
 
-    public function getSubscriberHistory(string $appUserId, array $params = []): array
+    public function getCustomerHistory(string $appUserId, array $params = []): array
     {
-        $uri = "/subscribers/{$appUserId}/history";
+        $uri = "/v2/projects/{$this->projectId}/customers/{$appUserId}/history";
         if (! empty($params)) {
             $uri .= '?'.http_build_query($params);
         }
@@ -88,38 +88,38 @@ class RevenueCat
         return $this->get($uri);
     }
 
-    public function getSubscriberEntitlements(string $appUserId): array
+    public function getCustomerEntitlements(string $appUserId): array
     {
-        return $this->get("/subscribers/{$appUserId}/entitlements");
+        return $this->get("/v2/projects/{$this->projectId}/customers/{$appUserId}/entitlements");
     }
 
-    public function getSubscriberPurchases(string $appUserId): array
+    public function getCustomerPurchases(string $appUserId): array
     {
-        return $this->get("/subscribers/{$appUserId}/purchases");
+        return $this->get("/v2/projects/{$this->projectId}/customers/{$appUserId}/purchases");
     }
 
     public function getUserSubscriptions(string $appUserId): array
     {
-        $subscriber = $this->getSubscriber($appUserId);
+        $customer = $this->getCustomer($appUserId);
 
-        return array_filter($subscriber['subscriber']['entitlements'] ?? [], function ($entitlement) {
+        return array_filter($customer['subscriber']['entitlements'] ?? [], function ($entitlement) {
             return $entitlement['is_active'] ?? false;
         });
     }
 
-    public function getSubscriberOffering(string $appUserId): array
+    public function getCustomerOffering(string $appUserId): array
     {
-        return $this->get("/subscribers/{$appUserId}/offerings");
+        return $this->get("/v2/projects/{$this->projectId}/customers/{$appUserId}/offerings");
     }
 
-    public function getSubscriberNonSubscriptions(string $appUserId): array
+    public function getCustomerNonSubscriptions(string $appUserId): array
     {
-        return $this->get("/subscribers/{$appUserId}/non_subscriptions");
+        return $this->get("/v2/projects/{$this->projectId}/customers/{$appUserId}/non_subscriptions");
     }
 
-    public function getSubscriberSubscriptions(string $appUserId): array
+    public function getCustomerSubscriptions(string $appUserId): array
     {
-        return $this->get("/subscribers/{$appUserId}/subscriptions");
+        return $this->get("/v2/projects/{$this->projectId}/customers/{$appUserId}/subscriptions");
     }
 
     protected function get(string $uri): array
