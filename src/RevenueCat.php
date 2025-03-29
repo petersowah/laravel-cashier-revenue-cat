@@ -12,11 +12,14 @@ class RevenueCat
 
     protected string $baseUrl = 'https://api.revenuecat.com/v2';
 
+    protected string $projectId;
+
     protected HttpClient $client;
 
-    public function __construct(string $apiKey)
+    public function __construct(string $apiKey, string $projectId)
     {
         $this->apiKey = $apiKey;
+        $this->projectId = $projectId;
         $this->client = $this->createDefaultClient();
     }
 
@@ -42,7 +45,7 @@ class RevenueCat
 
     public function getSubscriber(string $appUserId): array
     {
-        return $this->get("/subscribers/{$appUserId}");
+        return $this->get("/projects/{$this->projectId}/customers/{$appUserId}");
     }
 
     public function createSubscriber(string $appUserId, array $attributes = []): array

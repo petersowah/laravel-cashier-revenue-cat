@@ -33,8 +33,10 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->singleton(RevenueCat::class, function ($app) {
-            return new RevenueCat(config('cashier-revenue-cat.api_key'));
+            return new RevenueCat(config('cashier-revenue-cat.api.key'), config('cashier-revenue-cat.api.project_id'));
         });
+
+        $this->app->alias(RevenueCat::class, 'revenuecat');
     }
 
     public function register(): void

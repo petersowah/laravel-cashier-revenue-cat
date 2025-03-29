@@ -6,13 +6,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
+use PeterSowah\LaravelCashierRevenueCat\Facades\RevenueCat;
 use PHPUnit\Framework\Attributes\Test;
 
 class RevenueCatTest extends TestCase
 {
-    protected RevenueCat $revenueCat;
-
     protected MockHandler $mockHandler;
 
     protected function setUp(): void
@@ -23,8 +21,7 @@ class RevenueCatTest extends TestCase
         $handlerStack = HandlerStack::create($this->mockHandler);
         $client = new Client(['handler' => $handlerStack]);
 
-        $this->revenueCat = new RevenueCat(config('cashier-revenue-cat.api.key'));
-        $this->revenueCat->setClient($client);
+        RevenueCat::setClient($client);
     }
 
     #[Test]
@@ -48,7 +45,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriber('test-user');
+        $response = RevenueCat::getSubscriber('test-user');
 
         $this->assertArrayHasKey('subscriber', $response);
         $this->assertEquals('test-user', $response['subscriber']['original_app_user_id']);
@@ -67,7 +64,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->createSubscriber('test-user', [
+        $response = RevenueCat::createSubscriber('test-user', [
             'attributes' => ['name' => 'Test User'],
         ]);
 
@@ -100,7 +97,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getOfferings();
+        $response = RevenueCat::getOfferings();
 
         $this->assertArrayHasKey('current_offering_id', $response);
         $this->assertArrayHasKey('offerings', $response);
@@ -121,7 +118,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getProducts();
+        $response = RevenueCat::getProducts();
 
         $this->assertArrayHasKey('products', $response);
         $this->assertEquals('test-product', $response['products'][0]['identifier']);
@@ -141,7 +138,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriberHistory('test-user');
+        $response = RevenueCat::getSubscriberHistory('test-user');
 
         $this->assertArrayHasKey('transactions', $response);
         $this->assertEquals('test-transaction', $response['transactions'][0]['transaction_id']);
@@ -164,7 +161,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriberEntitlements('test-user');
+        $response = RevenueCat::getSubscriberEntitlements('test-user');
 
         $this->assertArrayHasKey('entitlements', $response);
         $this->assertArrayHasKey('premium', $response['entitlements']);
@@ -185,7 +182,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriberPurchases('test-user');
+        $response = RevenueCat::getSubscriberPurchases('test-user');
 
         $this->assertArrayHasKey('purchases', $response);
         $this->assertEquals('test-transaction', $response['purchases'][0]['transaction_id']);
@@ -211,7 +208,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getUserSubscriptions('test-user');
+        $response = RevenueCat::getUserSubscriptions('test-user');
 
         $this->assertArrayHasKey('premium', $response);
         $this->assertTrue($response['premium']['is_active']);
@@ -243,7 +240,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriberOffering('test-user');
+        $response = RevenueCat::getSubscriberOffering('test-user');
 
         $this->assertArrayHasKey('current_offering_id', $response);
         $this->assertArrayHasKey('offerings', $response);
@@ -265,7 +262,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriberNonSubscriptions('test-user');
+        $response = RevenueCat::getSubscriberNonSubscriptions('test-user');
 
         $this->assertArrayHasKey('non_subscriptions', $response);
         $this->assertEquals('test-product', $response['non_subscriptions'][0]['product_id']);
@@ -291,7 +288,7 @@ class RevenueCatTest extends TestCase
             ],
         ])));
 
-        $response = $this->revenueCat->getSubscriberSubscriptions('test-user');
+        $response = RevenueCat::getSubscriberSubscriptions('test-user');
 
         $this->assertArrayHasKey('subscriber', $response);
         $this->assertArrayHasKey('entitlements', $response['subscriber']);

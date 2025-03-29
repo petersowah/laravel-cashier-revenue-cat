@@ -30,7 +30,7 @@ class WebhookTest extends TestCase
         $this->postJson(
             route('cashier-revenue-cat.webhook'),
             $this->getWebhookPayload(),
-            ['X-RevenueCat-Signature' => 'invalid_signature']
+            ['Authorization' => 'Bearer invalid_secret']
         );
     }
 
@@ -50,12 +50,11 @@ class WebhookTest extends TestCase
     public function it_handles_webhooks()
     {
         $payload = $this->getWebhookPayload();
-        $content = json_encode($payload);
 
         $this->postJson(
             route('cashier-revenue-cat.webhook'),
             $payload,
-            ['X-RevenueCat-Signature' => $this->generateSignature($content)]
+            ['Authorization' => 'Bearer ' . config('cashier-revenue-cat.webhook.secret')]
         );
 
         Event::assertDispatched(WebhookReceived::class, function ($event) {
