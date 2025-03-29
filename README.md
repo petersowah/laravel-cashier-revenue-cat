@@ -222,7 +222,7 @@ The webhook URL will be: `https://your-domain.com/api/revenuecat/webhook`
 
 ### Route Group Configuration
 
-By default, the webhook route is registered in both the `web` and `webhooks` middleware groups. You can change this by setting the `REVENUECAT_ROUTE_GROUP` environment variable:
+By default, the webhook route is registered in the `web` middleware group. You can change this by setting the `REVENUECAT_ROUTE_GROUP` environment variable:
 
 ```env
 # For API routes (with api middleware)
@@ -233,6 +233,18 @@ REVENUECAT_ROUTE_GROUP=web
 ```
 
 This affects which middleware group the webhook route belongs to. The default is `web`.
+
+For example, if you set `REVENUECAT_ROUTE_GROUP=api`, the webhook route will be registered as:
+```
+POST api/webhook/revenuecat
+```
+
+If you set `REVENUECAT_ROUTE_GROUP=web`, the webhook route will be registered as:
+```
+POST webhook/revenuecat
+```
+
+The route name will always be `cashier-revenue-cat.webhook` regardless of the group.
 
 ## Mobile App Integration
 
@@ -418,20 +430,18 @@ REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
 
 4. You have two options for handling webhooks:
 
-   a. Use the default webhook handler:
-   ```env
-   # The default handler will be used if not specified
-   REVENUECAT_WEBHOOK_HANDLER=PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController@handleWebhook
-   ```
+   a. Use the default webhook handler (no configuration needed):
+   The package will automatically use the built-in webhook handler.
 
    b. Create your own webhook handler:
    ```bash
    php artisan cashier-revenue-cat:publish-webhook-handler
    ```
-   This will publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php`. Then configure it in your `.env`:
-   ```env
-   REVENUECAT_WEBHOOK_HANDLER=App\Listeners\HandleRevenueCatWebhook@handle
-   ```
+   This will:
+   - Publish the webhook handler to `app/Listeners/HandleRevenueCatWebhook.php`
+   - Publish the webhook controller to `app/Http/Controllers/RevenueCat/WebhookController.php`
+   - Update the configuration to use your published controller
+   - Update the route registration to use your published controller
 
    Your custom handler should implement the following interface:
    ```php
@@ -451,6 +461,10 @@ REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
    }
    ```
 
+   Note: The webhook handler configuration must include both the class name and the method name (e.g., `Class@method`). The method name is required and must be specified after the `@` symbol. The method should accept a `Request` object and return a `Response`.
+
+   After publishing, the webhook route will use your published controller at `App\Http\Controllers\RevenueCat\WebhookController`, which will dispatch the webhook event to your configured handler. You can customize both the controller and handler to implement your specific webhook handling logic.
+
 5. The package automatically handles the following webhook events:
 - INITIAL_PURCHASE
 - RENEWAL
@@ -466,7 +480,7 @@ REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
 6. Listen to webhook events in your application:
 
 ```php
-// In your EventServiceProvider
+// In your EventServiceProvider (app/Providers/EventServiceProvider.php)
 protected $listen = [
     \PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived::class => [
         \App\Listeners\HandleRevenueCatWebhook::class,
@@ -591,6 +605,89 @@ class HandleRevenueCatWebhook
 ```
 
 The webhook endpoint is automatically secured with signature verification using the `X-RevenueCat-Signature` header. The package will verify the signature using your configured webhook secret before processing any webhook events.
+
+### Webhook Event Handling
+
+The package dispatches a `WebhookReceived` event for each webhook request. You can listen to this event in your application by:
+
+1. Registering the event listener in your `EventServiceProvider`:
+```php
+// app/Providers/EventServiceProvider.php
+
+namespace App\Providers;
+
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
+
+class EventServiceProvider extends ServiceProvider
+{
+    protected $listen = [
+        WebhookReceived::class => [
+            \App\Listeners\HandleRevenueCatWebhook::class,
+        ],
+    ];
+
+    public function boot(): void
+    {
+        parent::boot();
+    }
+}
+```
+
+2. Creating a listener to handle the event:
+```bash
+php artisan make:listener HandleRevenueCatWebhook --event=WebhookReceived
+```
+
+3. Implementing the event handling logic in your listener:
+```php
+// app/Listeners/HandleRevenueCatWebhook.php
+
+namespace App\Listeners;
+
+use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
+
+class HandleRevenueCatWebhook
+{
+    public function handle(WebhookReceived $event): void
+    {
+        $payload = $event->payload;
+        $type = $payload['event']['type'];
+
+        // Handle different webhook event types
+        switch ($type) {
+            case 'INITIAL_PURCHASE':
+                $this->handleInitialPurchase($payload);
+                break;
+            case 'RENEWAL':
+                $this->handleRenewal($payload);
+                break;
+            // ... handle other event types
+        }
+    }
+
+    protected function handleInitialPurchase(array $payload): void
+    {
+        // Handle initial purchase
+    }
+
+    protected function handleRenewal(array $payload): void
+    {
+        // Handle renewal
+    }
+}
+```
+
+The event payload contains all the information from the RevenueCat webhook, including:
+- Event type
+- Event ID
+- Timestamp
+- Subscriber information
+- Product information
+- Entitlements
+- And more
+
+You can access this information in your event listener to implement your business logic.
 
 ## Database Schema
 

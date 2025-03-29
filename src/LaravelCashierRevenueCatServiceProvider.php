@@ -25,7 +25,8 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
                 '2025_03_21_000002_create_subscriptions_table',
                 '2025_03_21_000003_create_receipts_table',
             ])
-            ->hasRoute('webhooks')
+            ->hasRoutes('web')
+            ->hasRoutes('api')
             ->hasCommand(LaravelCashierRevenueCatCommand::class);
     }
 

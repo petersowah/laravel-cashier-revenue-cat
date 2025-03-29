@@ -33,7 +33,13 @@ class RouteServiceProvider extends ServiceProvider
             ->group(function () {
                 Route::post(
                     config('cashier-revenue-cat.webhook.endpoint', 'webhook/revenuecat'),
-                    config('cashier-revenue-cat.webhook.handler', \PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController::class . '@handleWebhook')
+                    function () {
+                        $handler = config('cashier-revenue-cat.webhook.handler');
+                        if (class_exists(\App\Http\Controllers\WebhookController::class)) {
+                            return app(\App\Http\Controllers\WebhookController::class)->handleWebhook(request());
+                        }
+                        return app(\PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController::class)->handleWebhook(request());
+                    }
                 )->name('cashier-revenue-cat.webhook');
             });
     }
