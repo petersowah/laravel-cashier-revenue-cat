@@ -35,7 +35,7 @@ return [
         'endpoint' => env('REVENUECAT_WEBHOOK_ENDPOINT', 'webhook/revenuecat'),
         'route_group' => env('REVENUECAT_ROUTE_GROUP', 'web'),
         'route_middleware' => env('REVENUECAT_WEBHOOK_ROUTE_MIDDLEWARE', 'web'),
-        'handler' => env('REVENUECAT_WEBHOOK_HANDLER', \PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController::class . '@handleWebhook'),
+        'handler' => env('REVENUECAT_WEBHOOK_HANDLER', \PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController::class.'@handleWebhook'),
         'allowed_ips' => env('REVENUECAT_WEBHOOK_ALLOWED_IPS', ''),
         'rate_limit' => [
             'enabled' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED', true),
