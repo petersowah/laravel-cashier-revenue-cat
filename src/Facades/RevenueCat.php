@@ -28,4 +28,4 @@ class RevenueCat extends Facade
     {
         return \PeterSowah\LaravelCashierRevenueCat\RevenueCat::class;
     }
-} 
+}

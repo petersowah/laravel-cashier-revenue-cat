@@ -54,7 +54,7 @@ class WebhookTest extends TestCase
         $this->postJson(
             route('cashier-revenue-cat.webhook'),
             $payload,
-            ['Authorization' => 'Bearer ' . config('cashier-revenue-cat.webhook.secret')]
+            ['Authorization' => 'Bearer '.config('cashier-revenue-cat.webhook.secret')]
         );
 
         Event::assertDispatched(WebhookReceived::class, function ($event) {
