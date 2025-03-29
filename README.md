@@ -645,6 +645,7 @@ php artisan make:listener HandleRevenueCatWebhook --event=WebhookReceived
 
 namespace App\Listeners;
 
+use Illuminate\Support\Facades\Log;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 
 class HandleRevenueCatWebhook
@@ -654,7 +655,11 @@ class HandleRevenueCatWebhook
         $payload = $event->payload;
         $type = $payload['event']['type'];
 
-        // Handle different webhook event types
+        Log::info('RevenueCat webhook received', [
+            'type' => $type,
+            'payload' => $payload,
+        ]);
+
         switch ($type) {
             case 'INITIAL_PURCHASE':
                 $this->handleInitialPurchase($payload);
@@ -662,18 +667,91 @@ class HandleRevenueCatWebhook
             case 'RENEWAL':
                 $this->handleRenewal($payload);
                 break;
-            // ... handle other event types
+            case 'CANCELLATION':
+                $this->handleCancellation($payload);
+                break;
+            case 'NON_RENEWING_PURCHASE':
+                $this->handleNonRenewingPurchase($payload);
+                break;
+            case 'SUBSCRIPTION_PAUSED':
+                $this->handleSubscriptionPaused($payload);
+                break;
+            case 'SUBSCRIPTION_RESUMED':
+                $this->handleSubscriptionResumed($payload);
+                break;
+            case 'PRODUCT_CHANGE':
+                $this->handleProductChange($payload);
+                break;
+            case 'BILLING_ISSUE':
+                $this->handleBillingIssue($payload);
+                break;
+            case 'REFUND':
+                $this->handleRefund($payload);
+                break;
+            case 'SUBSCRIPTION_PERIOD_CHANGED':
+                $this->handleSubscriptionPeriodChanged($payload);
+                break;
         }
     }
 
     protected function handleInitialPurchase(array $payload): void
     {
         // Handle initial purchase
+        Log::info('Handling initial purchase', ['payload' => $payload]);
     }
 
     protected function handleRenewal(array $payload): void
     {
         // Handle renewal
+        Log::info('Handling renewal', ['payload' => $payload]);
+    }
+
+    protected function handleCancellation(array $payload): void
+    {
+        // Handle cancellation
+        Log::info('Handling cancellation', ['payload' => $payload]);
+    }
+
+    protected function handleNonRenewingPurchase(array $payload): void
+    {
+        // Handle non-renewing purchase
+        Log::info('Handling non-renewing purchase', ['payload' => $payload]);
+    }
+
+    protected function handleSubscriptionPaused(array $payload): void
+    {
+        // Handle subscription paused
+        Log::info('Handling subscription paused', ['payload' => $payload]);
+    }
+
+    protected function handleSubscriptionResumed(array $payload): void
+    {
+        // Handle subscription resumed
+        Log::info('Handling subscription resumed', ['payload' => $payload]);
+    }
+
+    protected function handleProductChange(array $payload): void
+    {
+        // Handle product change
+        Log::info('Handling product change', ['payload' => $payload]);
+    }
+
+    protected function handleBillingIssue(array $payload): void
+    {
+        // Handle billing issue
+        Log::info('Handling billing issue', ['payload' => $payload]);
+    }
+
+    protected function handleRefund(array $payload): void
+    {
+        // Handle refund
+        Log::info('Handling refund', ['payload' => $payload]);
+    }
+
+    protected function handleSubscriptionPeriodChanged(array $payload): void
+    {
+        // Handle subscription period changed
+        Log::info('Handling subscription period changed', ['payload' => $payload]);
     }
 }
 ```
@@ -688,6 +766,52 @@ The event payload contains all the information from the RevenueCat webhook, incl
 - And more
 
 You can access this information in your event listener to implement your business logic.
+
+### Webhook Event Types
+
+The package handles the following webhook event types:
+
+1. **INITIAL_PURCHASE**
+   - Triggered when a user makes their first purchase
+   - Contains initial subscription details and user information
+
+2. **RENEWAL**
+   - Triggered when a subscription is renewed
+   - Contains updated subscription period information
+
+3. **CANCELLATION**
+   - Triggered when a subscription is cancelled
+   - Contains cancellation details and effective date
+
+4. **NON_RENEWING_PURCHASE**
+   - Triggered when a subscription is set to not renew
+   - Contains information about when the subscription will end
+
+5. **SUBSCRIPTION_PAUSED**
+   - Triggered when a subscription is paused
+   - Contains pause duration and reason
+
+6. **SUBSCRIPTION_RESUMED**
+   - Triggered when a paused subscription is resumed
+   - Contains updated subscription status
+
+7. **PRODUCT_CHANGE**
+   - Triggered when a subscription product is changed
+   - Contains old and new product information
+
+8. **BILLING_ISSUE**
+   - Triggered when there's a billing problem
+   - Contains error details and resolution steps
+
+9. **REFUND**
+   - Triggered when a purchase is refunded
+   - Contains refund amount and reason
+
+10. **SUBSCRIPTION_PERIOD_CHANGED**
+    - Triggered when a subscription period is modified
+    - Contains old and new period information
+
+Each event type provides specific data in the payload that you can use to implement your business logic. The event listener example above shows how to handle each type of event.
 
 ## Database Schema
 
