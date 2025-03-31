@@ -5,7 +5,6 @@ namespace PeterSowah\LaravelCashierRevenueCat\Models;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use LogicException;
 use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 
