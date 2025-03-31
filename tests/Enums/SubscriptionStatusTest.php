@@ -69,4 +69,4 @@ test('it creates correct status from webhook events', function () {
 test('it throws exception for unknown webhook event types', function () {
     expect(fn () => SubscriptionStatus::fromWebhookEvent(['type' => 'UNKNOWN']))
         ->toThrow(InvalidArgumentException::class, 'Unknown webhook event type: UNKNOWN');
-}); 
+});
