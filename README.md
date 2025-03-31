@@ -813,123 +813,87 @@ The package handles the following webhook event types:
 
 Each event type provides specific data in the payload that you can use to implement your business logic. The event listener example above shows how to handle each type of event.
 
-## Database Schema
+## Database Tables
 
-The package includes migrations for the following tables:
+The package creates the following database tables:
 
-- `customers`: Stores RevenueCat customer information
-  - `id`: Primary key
-  - `revenuecat_id`: RevenueCat's customer identifier
-  - `email`: Customer's email address
-  - `display_name`: Customer's display name
-  - `phone_number`: Customer's phone number
-  - `metadata`: JSON column for additional customer attributes
-  - `billable_type`: Polymorphic relationship type
-  - `billable_id`: Polymorphic relationship ID
-  - Timestamps
-
+- `customers`: Stores customer information
 - `subscriptions`: Stores subscription information
-  - `id`: Primary key
-  - `billable_type`: Polymorphic relationship type
-  - `billable_id`: Polymorphic relationship ID
-  - `revenuecat_id`: RevenueCat's subscription identifier
-  - `name`: Subscription name
-  - `product_id`: RevenueCat product identifier
-  - `price_id`: RevenueCat price identifier
-  - `status`: Subscription status
-  - `current_period_start`: Start of current billing period
-  - `current_period_end`: End of current billing period
-  - `trial_start`: Start of trial period
-  - `trial_end`: End of trial period
-  - `canceled_at`: When the subscription was canceled
-  - `ended_at`: When the subscription ended
-  - `paused_at`: When the subscription was paused
-  - `resumed_at`: When the subscription was resumed
-  - `metadata`: JSON column for additional subscription attributes
-  - Timestamps
-
-- `subscription_items`: Stores subscription line items
-  - `id`: Primary key
-  - `subscription_id`: Foreign key to subscriptions
-  - `product_id`: RevenueCat product identifier
-  - `price_id`: RevenueCat price identifier
-  - `quantity`: Quantity of items
-  - `metadata`: JSON column for additional item attributes
-  - Timestamps
-
-- `receipts`: Stores transaction receipts
-  - `id`: Primary key
-  - `billable_type`: Polymorphic relationship type
-  - `billable_id`: Polymorphic relationship ID
-  - `transaction_id`: RevenueCat transaction identifier
-  - `store`: App store identifier (App Store/Play Store)
-  - `environment`: Production or sandbox
-  - `price`: Transaction amount
-  - `currency`: Transaction currency
-  - `purchase_date`: When the purchase was made
-  - `expiration_date`: When the purchase expires
-  - `metadata`: JSON column for additional receipt attributes
-  - Timestamps
 
 ## Models
 
-The package includes the following models in the `PeterSowah\LaravelCashierRevenueCat\Models` namespace:
+The package provides the following models:
 
-- `Customer`: Represents a RevenueCat customer
-- `Subscription`: Represents a customer's subscription
-- `Receipt`: Represents a transaction receipt
+- `Customer`: Represents a customer
+- `Subscription`: Represents a subscription
 
-To use these models in your application, you can either:
+## Usage
 
-1. Use them directly:
+To use the package, add the `Billable` trait to your User model:
+
 ```php
-use PeterSowah\LaravelCashierRevenueCat\Models\Customer;
-use PeterSowah\LaravelCashierRevenueCat\Models\Subscription;
-use PeterSowah\LaravelCashierRevenueCat\Models\Receipt;
-```
+use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
 
-2. Or extend them for custom functionality:
-```php
-use PeterSowah\LaravelCashierRevenueCat\Models\Customer as RevenueCatCustomer;
-
-class Customer extends RevenueCatCustomer
+class User extends Authenticatable
 {
-    // Your custom functionality
+    use Billable;
+    // ...
 }
 ```
 
+This will give your User model access to the following relationships:
+
+- `customer()`: Get the customer associated with the user
+- `subscriptions()`: Get the subscriptions associated with the user
+
+## Configuration
+
+The package can be configured by publishing the configuration file:
+
+```bash
+php artisan vendor:publish --provider="PeterSowah\LaravelCashierRevenueCat\LaravelCashierRevenueCatServiceProvider" --tag="config"
+```
+
+This will create a `config/cashier-revenue-cat.php` file where you can configure:
+
+- API Key
+- Project ID
+- Webhook Secret
+- Webhook Endpoint
+- Webhook Handler
+
+## Webhooks
+
+The package provides webhook handling for RevenueCat events. To use webhooks:
+
+1. Configure your webhook endpoint in RevenueCat to point to your application's webhook URL
+2. Set the webhook secret in your configuration
+3. The package will automatically handle incoming webhooks and dispatch events
+
+## Events
+
+The package dispatches the following events:
+
+- `WebhookReceived`: Dispatched when a webhook is received from RevenueCat
+
 ## Testing
 
-The package includes a comprehensive test suite. To run the tests:
+The package provides a test case that you can use in your tests:
 
-```bash
-composer test
+```php
+use PeterSowah\LaravelCashierRevenueCat\Tests\TestCase;
+
+class YourTest extends TestCase
+{
+    // Your test methods
+}
 ```
 
-This will run both PHPUnit tests and PHPStan static analysis. You can run them separately:
+This test case provides:
 
-```bash
-# Run PHPUnit tests only
-vendor/bin/pest
-
-# Run PHPStan analysis only
-vendor/bin/phpstan analyse
-```
-
-The package maintains a high level of type safety and follows Laravel's coding standards.
-
-## Contributing
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## Security
-
-If you discover any security-related issues, please email petersowah@gmail.com instead of using the issue tracker.
-
-## Credits
-
-- [Peter Sowah](https://github.com/petersowah)
-- [All Contributors](../../contributors)
+- Database configuration for testing
+- RevenueCat configuration for testing
+- Helper methods for creating test data
 
 ## License
 

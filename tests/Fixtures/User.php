@@ -11,8 +11,7 @@ use PeterSowah\LaravelCashierRevenueCat\Concerns\Billable;
  * @property string $name
  * @property string $email
  * @property \PeterSowah\LaravelCashierRevenueCat\Models\Customer $customer
- * @property \PeterSowah\LaravelCashierRevenueCat\Models\Subscription $subscription
- * @property \PeterSowah\LaravelCashierRevenueCat\Models\Receipt $receipts
+ * @property \PeterSowah\LaravelCashierRevenueCat\Models\Subscription $subscriptions
  */
 class User extends Authenticatable
 {

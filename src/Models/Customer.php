@@ -32,36 +32,36 @@ class Customer extends Model
         'metadata' => 'array',
     ];
 
-    public function billable(): MorphTo
+    /**
+     * Get the customer's billable model.
+     */
+    public function billable()
     {
         return $this->morphTo();
     }
 
     /**
-     * @return Collection<int, Subscription>|null
+     * Get the customer's subscriptions.
      */
     public function subscriptions()
     {
-        /** @var Model|null $billable */
-        $billable = $this->billable;
-        if (! $billable || ! method_exists($billable, 'subscriptions')) {
-            return null;
-        }
-
-        return $billable->subscriptions()->get();
+        return $this->hasMany(Subscription::class);
     }
 
     /**
-     * @return Collection<int, Receipt>|null
+     * Boot the model.
      */
-    public function receipts()
+    protected static function boot()
     {
-        /** @var Model|null $billable */
-        $billable = $this->billable;
-        if (! $billable || ! method_exists($billable, 'receipts')) {
-            return null;
-        }
+        parent::boot();
 
-        return $billable->receipts()->get();
+        static::creating(function ($customer) {
+            // Ensure only one customer per billable model
+            if (static::where('billable_type', $customer->billable_type)
+                ->where('billable_id', $customer->billable_id)
+                ->exists()) {
+                throw new \RuntimeException('A customer already exists for this billable model.');
+            }
+        });
     }
 }

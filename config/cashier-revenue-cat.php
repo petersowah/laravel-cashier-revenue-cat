@@ -7,16 +7,15 @@ return [
     | RevenueCat API Configuration
     |--------------------------------------------------------------------------
     |
-    | Here you can configure your RevenueCat API settings. The API key and
-    | project ID are required for the package to work.
+    | Here you can configure your RevenueCat API credentials and settings.
     |
     */
 
     'api' => [
-        'key' => env('REVENUECAT_API_KEY'),
-        'project_id' => env('REVENUECAT_PROJECT_ID'),
-        'version' => env('REVENUECAT_API_VERSION', 'v2'),
-        'base_url' => env('REVENUECAT_API_BASE_URL', 'https://api.revenuecat.com'),
+        'key' => config('app.revenuecat.api.key'),
+        'project_id' => config('app.revenuecat.api.project_id'),
+        'version' => config('app.revenuecat.api.version', 'v2'),
+        'base_url' => config('app.revenuecat.api.base_url', 'https://api.revenuecat.com'),
     ],
 
     /*
@@ -24,24 +23,37 @@ return [
     | Webhook Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure how webhooks from RevenueCat are handled. The webhook secret
-    | is used to verify the authenticity of incoming webhooks.
+    | Here you can configure your webhook settings.
     |
     */
 
     'webhook' => [
-        'secret' => env('REVENUECAT_WEBHOOK_SECRET'),
-        'tolerance' => env('REVENUECAT_WEBHOOK_TOLERANCE', 300),
-        'endpoint' => env('REVENUECAT_WEBHOOK_ENDPOINT', 'webhook/revenuecat'),
-        'route_group' => env('REVENUECAT_ROUTE_GROUP', 'web'),
-        'route_middleware' => env('REVENUECAT_WEBHOOK_ROUTE_MIDDLEWARE', 'web'),
-        'handler' => env('REVENUECAT_WEBHOOK_HANDLER', \PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController::class.'@handleWebhook'),
-        'allowed_ips' => env('REVENUECAT_WEBHOOK_ALLOWED_IPS', ''),
+        'secret' => config('app.revenuecat.webhook.secret'),
+        'tolerance' => config('app.revenuecat.webhook.tolerance', 300),
+        'endpoint' => config('app.revenuecat.webhook.endpoint', 'webhook/revenuecat'),
+        'route_group' => config('app.revenuecat.webhook.route_group', 'web'),
+        'route_middleware' => config('app.revenuecat.webhook.route_middleware', 'web'),
+        'handler' => config('app.revenuecat.webhook.handler', \PeterSowah\LaravelCashierRevenueCat\Http\Controllers\RevenueCatWebhookController::class),
+        'allowed_ips' => config('app.revenuecat.webhook.allowed_ips', ''),
         'rate_limit' => [
-            'enabled' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ENABLED', true),
-            'max_attempts' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_ATTEMPTS', 60),
-            'decay_minutes' => env('REVENUECAT_WEBHOOK_RATE_LIMIT_DECAY', 1),
+            'enabled' => config('app.revenuecat.webhook.rate_limit.enabled', true),
+            'max_attempts' => config('app.revenuecat.webhook.rate_limit.max_attempts', 60),
+            'decay_minutes' => config('app.revenuecat.webhook.rate_limit.decay_minutes', 1),
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you can configure your database settings.
+    |
+    */
+
+    'database' => [
+        'customers_table' => config('app.revenuecat.database.customers_table', 'customers'),
+        'subscriptions_table' => config('app.revenuecat.database.subscriptions_table', 'subscriptions'),
     ],
 
     /*
@@ -49,15 +61,14 @@ return [
     | Cache Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure caching for RevenueCat API responses. This can help reduce
-    | API calls and improve performance.
+    | Here you can configure your cache settings.
     |
     */
 
     'cache' => [
-        'enabled' => env('REVENUECAT_CACHE_ENABLED', true),
-        'ttl' => env('REVENUECAT_CACHE_TTL', 3600),
-        'prefix' => env('REVENUECAT_CACHE_PREFIX', 'revenuecat'),
+        'enabled' => config('app.revenuecat.cache.enabled', true),
+        'ttl' => config('app.revenuecat.cache.ttl', 3600),
+        'prefix' => config('app.revenuecat.cache.prefix', 'revenuecat'),
     ],
 
     /*
@@ -65,14 +76,14 @@ return [
     | Logging Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure logging for RevenueCat API calls and webhook events.
+    | Here you can configure your logging settings.
     |
     */
 
     'logging' => [
-        'enabled' => env('REVENUECAT_LOGGING_ENABLED', true),
-        'channel' => env('REVENUECAT_LOGGING_CHANNEL', 'stack'),
-        'level' => env('REVENUECAT_LOGGING_LEVEL', 'debug'),
+        'enabled' => config('app.revenuecat.logging.enabled', true),
+        'channel' => config('app.revenuecat.logging.channel', 'stack'),
+        'level' => config('app.revenuecat.logging.level', 'debug'),
     ],
 
     /*
@@ -85,10 +96,10 @@ return [
     */
 
     'error_handling' => [
-        'throw_exceptions' => env('REVENUECAT_THROW_EXCEPTIONS', true),
-        'log_errors' => env('REVENUECAT_LOG_ERRORS', true),
-        'retry_on_error' => env('REVENUECAT_RETRY_ON_ERROR', true),
-        'max_retries' => env('REVENUECAT_MAX_RETRIES', 3),
+        'throw_exceptions' => config('app.revenuecat.error_handling.throw_exceptions', true),
+        'log_errors' => config('app.revenuecat.error_handling.log_errors', true),
+        'retry_on_error' => config('app.revenuecat.error_handling.retry_on_error', true),
+        'max_retries' => config('app.revenuecat.error_handling.max_retries', 3),
     ],
 
     /*
@@ -100,7 +111,7 @@ return [
     |
     */
 
-    'currency' => env('REVENUECAT_CURRENCY', 'USD'),
+    'currency' => config('app.revenuecat.currency', 'USD'),
     'model' => [
         'user' => config('auth.providers.users.model', \Illuminate\Foundation\Auth\User::class),
     ],

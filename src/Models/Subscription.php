@@ -70,7 +70,10 @@ class Subscription extends Model
         'status' => SubscriptionStatus::ACTIVE,
     ];
 
-    public function billable(): MorphTo
+    /**
+     * Get the subscription's billable model.
+     */
+    public function billable()
     {
         return $this->morphTo();
     }

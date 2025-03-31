@@ -1,6 +1,5 @@
 <?php
 
-use InvalidArgumentException;
 use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 
 test('it has correct string values', function () {
