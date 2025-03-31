@@ -5,7 +5,7 @@ namespace PeterSowah\LaravelCashierRevenueCat\Models;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use LogicException;
 use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 
@@ -13,7 +13,7 @@ use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
  * @property string $name
  * @property string $revenuecat_id
  * @property SubscriptionStatus $status
- * @property string $price_id
+ * @property string $price
  * @property string $product_id
  * @property \Carbon\Carbon|null $current_period_started_at
  * @property \Carbon\Carbon|null $current_period_ended_at
@@ -61,7 +61,7 @@ class Subscription extends Model
         'status' => SubscriptionStatus::class,
         'name' => 'string',
         'revenuecat_id' => 'string',
-        'price_id' => 'string',
+        'price' => 'string',
         'product_id' => 'string',
     ];
 
@@ -75,11 +75,6 @@ class Subscription extends Model
     public function billable()
     {
         return $this->morphTo();
-    }
-
-    public function items(): HasMany
-    {
-        return $this->hasMany(SubscriptionItem::class);
     }
 
     public function active(): bool

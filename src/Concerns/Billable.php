@@ -5,7 +5,6 @@ namespace PeterSowah\LaravelCashierRevenueCat\Concerns;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use PeterSowah\LaravelCashierRevenueCat\Models\Customer;
-use PeterSowah\LaravelCashierRevenueCat\Models\Receipt;
 use PeterSowah\LaravelCashierRevenueCat\Models\Subscription;
 use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
 
@@ -38,14 +37,6 @@ trait Billable
     {
         /** @var Subscription|null */
         return $this->subscriptions()->first();
-    }
-
-    /**
-     * Get the receipts associated with the billable model.
-     */
-    public function receipts(): MorphMany
-    {
-        return $this->morphMany(Receipt::class, 'billable');
     }
 
     /**
