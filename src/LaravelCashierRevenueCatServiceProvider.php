@@ -3,6 +3,7 @@
 namespace PeterSowah\LaravelCashierRevenueCat;
 
 use PeterSowah\LaravelCashierRevenueCat\Commands\LaravelCashierRevenueCatCommand;
+use PeterSowah\LaravelCashierRevenueCat\Providers\RouteServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -17,17 +18,28 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('laravel-cashier-revenue-cat')
-            ->hasConfigFile()
+            ->hasConfigFile('cashier-revenue-cat')
             ->hasViews()
-            ->hasMigration('create_cashier_revenuecat_tables')
-            ->hasRoute('webhooks')
-            ->hasCommand(LaravelCashierRevenueCatCommand::class);
+            ->hasMigrations([
+                'create_customers_table',
+                'create_subscriptions_table',
+            ])
+            ->hasRoutes('web')
+            ->hasRoutes('api');
     }
 
     public function packageRegistered(): void
     {
         $this->app->singleton(RevenueCat::class, function ($app) {
-            return new RevenueCat(config('cashier-revenue-cat.api_key'));
+            return new RevenueCat(config('cashier-revenue-cat.api.key'), config('cashier-revenue-cat.api.project_id'));
         });
+
+        $this->app->alias(RevenueCat::class, 'revenuecat');
+    }
+
+    public function register(): void
+    {
+        parent::register();
+        $this->app->register(RouteServiceProvider::class);
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class WebhookController
+class RevenueCatWebhookController
 {
     /**
      * Handle incoming RevenueCat webhook requests.
@@ -35,7 +35,7 @@ class WebhookController
         }
 
         // Verify the authorization header
-        $expectedAuth = 'Bearer '.config('cashier-revenue-cat.webhook.secret');
+        $expectedAuth = 'Bearer '.config('revenuecat.webhook.secret');
         if ($authHeader !== $expectedAuth) {
             Log::warning('RevenueCat webhook authorization header invalid', [
                 'ip' => $request->ip(),

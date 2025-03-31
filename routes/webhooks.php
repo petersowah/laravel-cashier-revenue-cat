@@ -1,7 +1,4 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
-
-Route::post('revenuecat/webhook', [WebhookController::class, 'handleWebhook'])
-    ->name('cashier.webhook');
+Route::post($endpoint, [WebhookController::class, 'handleWebhook'])
+    ->name('cashier-revenue-cat.webhook');

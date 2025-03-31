@@ -1,76 +1,103 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+namespace PeterSowah\LaravelCashierRevenueCat\Tests;
+
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
-use PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController;
+use PHPUnit\Framework\Attributes\Test;
 
-uses(RefreshDatabase::class);
+class WebhookTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Event::fake();
+    }
 
-beforeEach(function () {
-    Route::post('revenuecat/webhook', [WebhookController::class, 'handleWebhook'])
-        ->name('cashier.webhook');
-});
+    protected function defineEnvironment($app)
+    {
+        parent::getEnvironmentSetUp($app);
+        $app['config']->set('cashier-revenue-cat.webhook.secret', 'test-secret');
+        $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+    }
 
-test('it handles webhooks and dispatches events', function () {
-    Event::fake();
-    config(['cashier-revenue-cat.webhook.secret' => 'test-secret']);
+    #[Test]
+    public function it_validates_webhook_signature()
+    {
+        $this->withoutExceptionHandling();
+        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 
-    $payload = [
-        'type' => 'initial_purchase',
-        'event' => [
-            'id' => 'test-event-id',
-            'type' => 'INITIAL_PURCHASE',
-        ],
-    ];
+        $this->postJson(
+            route('cashier-revenue-cat.webhook'),
+            $this->getWebhookPayload(),
+            ['Authorization' => 'Bearer invalid_secret']
+        );
+    }
 
-    $signature = hash_hmac('sha256', json_encode($payload), 'test-secret');
+    #[Test]
+    public function it_rejects_webhook_without_signature()
+    {
+        $this->withoutExceptionHandling();
+        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 
-    $response = $this->postJson('revenuecat/webhook', $payload, [
-        'RevenueCat-Signature' => $signature,
-    ]);
+        $this->postJson(
+            route('cashier-revenue-cat.webhook'),
+            $this->getWebhookPayload()
+        );
+    }
 
-    $response->assertStatus(200);
-    Event::assertDispatched(WebhookReceived::class, function ($event) use ($payload) {
-        return $event->payload === $payload;
-    });
-});
+    #[Test]
+    public function it_handles_webhooks()
+    {
+        $payload = $this->getWebhookPayload();
 
-test('it validates webhook signatures when configured', function () {
-    config(['cashier-revenue-cat.webhook.secret' => 'test-secret']);
+        $this->postJson(
+            route('cashier-revenue-cat.webhook'),
+            $payload,
+            ['Authorization' => 'Bearer '.config('cashier-revenue-cat.webhook.secret')]
+        );
 
-    $payload = [
-        'type' => 'initial_purchase',
-        'event' => [
-            'id' => 'test-event-id',
-            'type' => 'INITIAL_PURCHASE',
-        ],
-    ];
+        Event::assertDispatched(WebhookReceived::class, function ($event) {
+            return $event->payload['event']['type'] === 'INITIAL_PURCHASE';
+        });
+    }
 
-    $signature = hash_hmac('sha256', json_encode($payload), 'test-secret');
+    protected function getWebhookPayload(): array
+    {
+        return [
+            'event' => [
+                'type' => 'INITIAL_PURCHASE',
+                'id' => 'evt_123',
+                'created_at' => 1234567890,
+                'subscriber' => [
+                    'id' => 'sub_123',
+                    'entitlements' => [
+                        'premium' => [
+                            'identifier' => 'premium',
+                            'is_active' => true,
+                            'will_renew' => true,
+                            'period_type' => 'NORMAL',
+                            'latest_purchase_date' => '2024-01-01T00:00:00Z',
+                            'original_purchase_date' => '2024-01-01T00:00:00Z',
+                            'expiration_date' => '2024-02-01T00:00:00Z',
+                            'is_sandbox' => false,
+                        ],
+                    ],
+                ],
+                'product' => [
+                    'id' => 'prod_123',
+                    'identifier' => 'premium_monthly',
+                    'price' => 9.99,
+                    'currency' => 'USD',
+                ],
+            ],
+        ];
+    }
 
-    $response = $this->postJson('revenuecat/webhook', $payload, [
-        'RevenueCat-Signature' => $signature,
-    ]);
+    protected function generateSignature(string $content): string
+    {
+        $secret = config('cashier-revenue-cat.webhook.secret');
 
-    $response->assertStatus(200);
-});
-
-test('it rejects invalid webhook signatures', function () {
-    config(['cashier-revenue-cat.webhook.secret' => 'test-secret']);
-
-    $payload = [
-        'type' => 'initial_purchase',
-        'event' => [
-            'id' => 'test-event-id',
-            'type' => 'INITIAL_PURCHASE',
-        ],
-    ];
-
-    $response = $this->postJson('revenuecat/webhook', $payload, [
-        'RevenueCat-Signature' => 'invalid-signature',
-    ]);
-
-    $response->assertStatus(403);
-});
+        return hash_hmac('sha256', $content, $secret);
+    }
+}

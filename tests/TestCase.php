@@ -14,8 +14,6 @@ abstract class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function getPackageProviders($app): array
@@ -27,8 +25,17 @@ abstract class TestCase extends Orchestra
 
     public function getEnvironmentSetUp($app): void
     {
+        // Use SQLite in memory for testing
         config()->set('database.default', 'testing');
-        config()->set('cashier-revenue-cat.api_key', 'test-api-key');
+        config()->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        // Package configuration
+        config()->set('cashier-revenue-cat.api.key', 'test-api-key');
+        config()->set('cashier-revenue-cat.api.project_id', 'test-project-id');
         config()->set('cashier-revenue-cat.webhook.secret', 'test-webhook-secret');
         config()->set('cashier-revenue-cat.model.user', User::class);
     }
