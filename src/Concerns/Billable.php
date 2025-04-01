@@ -4,10 +4,10 @@ namespace PeterSowah\LaravelCashierRevenueCat\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 use PeterSowah\LaravelCashierRevenueCat\Models\Customer;
 use PeterSowah\LaravelCashierRevenueCat\Models\Subscription;
 use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
-use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 
 /**
  * @property-read Customer|null $customer
@@ -217,7 +217,6 @@ trait Billable
             ->where('status', SubscriptionStatus::ACTIVE)
             ->first();
     }
-
 
     public function hasActiveSubscription(): bool
     {
