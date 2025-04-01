@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use PeterSowah\LaravelCashierRevenueCat\Models\Customer;
 use PeterSowah\LaravelCashierRevenueCat\Models\Subscription;
 use PeterSowah\LaravelCashierRevenueCat\RevenueCat;
+use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 
 /**
  * @property-read Customer|null $customer
@@ -204,5 +205,22 @@ trait Billable
         $customer = $this->customer;
 
         return ! is_null($customer?->revenuecat_id);
+    }
+
+    /**
+     * Get the active subscription for the billable model.
+     */
+    public function getActiveSubscription(): ?Subscription
+    {
+        /** @var Subscription|null */
+        return $this->subscriptions()
+            ->where('status', SubscriptionStatus::ACTIVE)
+            ->first();
+    }
+
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->getActiveSubscription() !== null;
     }
 }
