@@ -14,9 +14,23 @@ A Laravel Cashier driver for RevenueCat, providing seamless integration with Rev
 - Event-driven architecture for subscription management
 - Support for entitlements management
 - Support for non-subscription purchases
+- Comprehensive subscription management
+  - Create and manage RevenueCat customers
+  - Check subscription status
+  - Get active subscriptions
+  - Access subscription history
+  - Handle subscription events
+- Entitlements management
+  - Get all entitlements
+  - Check specific entitlements
+  - Verify entitlement status
+- Offerings and products management
+  - Get current offering
+  - List available offerings
+  - Access product information
+- Automatic retry mechanism for failed API calls
 - Caching support for API responses
 - Comprehensive logging and error handling
-- Automatic retry mechanism for failed API calls
 
 ## Installation
 
@@ -371,11 +385,24 @@ try {
 ### Managing Subscribers
 
 ```php
-// Get subscriber information
-$subscriber = $user->subscription()->getSubscriber();
+// Create a customer for the billable model
+$customer = $user->createAsRevenueCatCustomer();
+
+// Get the RevenueCat ID
+$revenueCatId = $user->getRevenueCatId();
+// or
+$revenueCatId = $user->getRevenueCatCustomerId();
+
+// Check if user has a RevenueCat ID
+if ($user->hasRevenueCatId()) {
+    // User has a RevenueCat ID
+}
 
 // Get subscriber's entitlements
 $entitlements = $user->getEntitlements();
+
+// Get a specific entitlement
+$entitlement = $user->getEntitlement('premium');
 
 // Check if user has specific entitlement
 if ($user->hasEntitlement('premium')) {
@@ -391,19 +418,19 @@ $history = $user->getSubscriptionHistory();
 // Get non-subscription purchases
 $purchases = $user->getNonSubscriptions();
 
-// Create a subscriber
-$user->subscription()->createSubscriber([
-    'attributes' => [
-        'name' => 'John Doe',
-        'email' => 'john@example.com'
-    ]
-]);
-
 // Get available offerings
-$offerings = $user->subscription()->getOfferings();
+$offerings = $user->getOfferings();
 
 // Get available products
-$products = $user->subscription()->getProducts();
+$products = $user->getProducts();
+
+// Get active subscription
+$activeSubscription = $user->getActiveSubscription();
+
+// Check if user has active subscription
+if ($user->hasActiveSubscription()) {
+    // User has an active subscription
+}
 ```
 
 ### Handling Webhooks
