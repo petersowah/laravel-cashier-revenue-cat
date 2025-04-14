@@ -237,10 +237,11 @@ PHP;
     protected function updateConfig(): void
     {
         $configPath = config_path('cashier-revenue-cat.php');
-        
+
         if (! File::exists($configPath)) {
             $this->warn('Configuration file not found. Please publish the configuration first using:');
             $this->line('php artisan vendor:publish --tag=cashier-revenue-cat-config');
+
             return;
         }
 
@@ -250,7 +251,7 @@ PHP;
             '\\App\\Http\\Controllers\\RevenueCat\\WebhookController::class . \'@handleWebhook\'',
             $config
         );
-        
+
         File::put($configPath, $config);
         $this->info('Configuration updated to use the published controller!');
 
