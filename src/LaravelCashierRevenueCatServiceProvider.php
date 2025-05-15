@@ -23,8 +23,6 @@ class LaravelCashierRevenueCatServiceProvider extends PackageServiceProvider
                 'create_customers_table',
                 'create_subscriptions_table',
             ])
-            ->hasRoutes('web')
-            ->hasRoutes('api')
             ->hasCommand(\PeterSowah\LaravelCashierRevenueCat\Commands\PublishWebhookHandlerCommand::class);
     }
 
