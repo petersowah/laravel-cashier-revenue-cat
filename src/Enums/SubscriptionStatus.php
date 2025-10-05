@@ -71,9 +71,8 @@ enum SubscriptionStatus: string
     {
         return match ($event['type']) {
             'INITIAL_PURCHASE' => isset($event['is_trial_period']) && $event['is_trial_period'] ? self::TRIAL : self::ACTIVE,
-            'RENEWAL' => self::ACTIVE,
+            'RENEWAL', 'UNCANCELLATION' => self::ACTIVE,
             'CANCELLATION' => self::CANCELED,
-            'UNCANCELLATION' => self::ACTIVE,
             'SUBSCRIPTION_PAUSED' => self::PAUSED,
             'BILLING_ISSUE' => self::GRACE_PERIOD,
             'EXPIRATION' => self::EXPIRED,
