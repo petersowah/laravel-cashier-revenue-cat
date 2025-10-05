@@ -21,7 +21,7 @@ class PublishWebhookHandlerCommand extends Command
     protected function publishWebhookHandler(): void
     {
         $targetPath = app_path('Listeners/HandleRevenueCatWebhook.php');
-        $sourcePath = __DIR__ . '/../Listeners/HandleRevenueCatWebhook.php';
+        $sourcePath = __DIR__.'/../Listeners/HandleRevenueCatWebhook.php';
 
         if (! File::exists(dirname($targetPath))) {
             File::makeDirectory(dirname($targetPath), 0755, true);
@@ -35,6 +35,7 @@ class PublishWebhookHandlerCommand extends Command
 
         if (! File::exists($sourcePath)) {
             $this->error('Source webhook handler file not found. Please ensure the package is properly installed.');
+
             return;
         }
 
@@ -55,7 +56,7 @@ class PublishWebhookHandlerCommand extends Command
     protected function publishWebhookController(): void
     {
         $targetPath = app_path('Http/Controllers/RevenueCat/RevenueCatWebhookController.php');
-        $sourcePath = __DIR__ . '/../Http/Controllers/RevenueCatWebhookController.php';
+        $sourcePath = __DIR__.'/../Http/Controllers/RevenueCatWebhookController.php';
 
         if (! File::exists(dirname($targetPath))) {
             File::makeDirectory(dirname($targetPath), 0755, true);
@@ -69,6 +70,7 @@ class PublishWebhookHandlerCommand extends Command
 
         if (! File::exists($sourcePath)) {
             $this->error('Source webhook controller file not found. Please ensure the package is properly installed.');
+
             return;
         }
 
