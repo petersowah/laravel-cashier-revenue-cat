@@ -154,7 +154,7 @@ PHP;
 
     protected function publishWebhookController(): void
     {
-        $targetPath = app_path('Http/Controllers/RevenueCat/WebhookController.php');
+        $targetPath = app_path('Http/Controllers/RevenueCat/RevenueCatWebhookController.php');
 
         if (! File::exists(dirname($targetPath))) {
             File::makeDirectory(dirname($targetPath), 0755, true);
@@ -176,7 +176,7 @@ use Illuminate\Support\Facades\Log;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class WebhookController
+class RevenueCatWebhookController
 {
     /**
      * Handle incoming RevenueCat webhook requests.
@@ -247,8 +247,8 @@ PHP;
 
         $config = File::get($configPath);
         $config = str_replace(
-            '\\PeterSowah\\LaravelCashierRevenueCat\\Http\\Controllers\\WebhookController::class . \'@handleWebhook\'',
-            '\\App\\Http\\Controllers\\RevenueCat\\WebhookController::class . \'@handleWebhook\'',
+            '\\PeterSowah\\LaravelCashierRevenueCat\\Http\\Controllers\\RevenueCatWebhookController::class . \'@handleWebhook\'',
+            '\\App\\Http\\Controllers\\RevenueCat\\RevenueCatWebhookController::class . \'@handleWebhook\'',
             $config
         );
 

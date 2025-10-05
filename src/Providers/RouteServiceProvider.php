@@ -39,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
                             return app(\App\Http\Controllers\WebhookController::class)->handleWebhook(request());
                         }
 
-                        return app(\PeterSowah\LaravelCashierRevenueCat\Http\Controllers\WebhookController::class)->handleWebhook(request());
+                        return app(\PeterSowah\LaravelCashierRevenueCat\Http\Controllers\RevenueCatWebhookController::class)->handleWebhook(request());
                     }
                 )->name('cashier-revenue-cat.webhook');
             });

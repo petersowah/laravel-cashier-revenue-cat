@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class WebhookController
+class RevenueCatWebhookController
 {
     /**
      * Handle incoming RevenueCat webhook requests.
