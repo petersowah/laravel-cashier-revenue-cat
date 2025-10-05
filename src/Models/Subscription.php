@@ -46,7 +46,7 @@ class Subscription extends Model
         'paused_at',
         'resumed_at',
         'metadata',
-        'store'
+        'store',
     ];
 
     protected $casts = [

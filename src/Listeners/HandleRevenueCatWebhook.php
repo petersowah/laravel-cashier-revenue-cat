@@ -3,13 +3,8 @@
 namespace PeterSowah\LaravelCashierRevenueCat\Listeners;
 
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 use PeterSowah\LaravelCashierRevenueCat\Events\WebhookReceived;
-use PeterSowah\LaravelCashierRevenueCat\Facades\RevenueCat;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class HandleRevenueCatWebhook
 {
@@ -66,7 +61,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle the initial purchase event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      *
      * @throws Exception
      */
@@ -75,13 +70,13 @@ class HandleRevenueCatWebhook
         // Handle initial purchase
         Log::info('Handling initial purchase', ['payload' => $payload]);
 
-       // TODO: implement logic here
+        // TODO: implement logic here
     }
 
     /**
      * Handle renewal event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleRenewal(array $payload): void
     {
@@ -94,7 +89,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle cancellation event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleCancellation(array $payload): void
     {
@@ -107,7 +102,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle non-renewing purchase event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleNonRenewingPurchase(array $payload): void
     {
@@ -120,7 +115,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle subscription paused event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleSubscriptionPaused(array $payload): void
     {
@@ -133,7 +128,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle subscription resumed event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleSubscriptionResumed(array $payload): void
     {
@@ -146,7 +141,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle product change event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleProductChange(array $payload): void
     {
@@ -159,7 +154,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle billing issue event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleBillingIssue(array $payload): void
     {
@@ -172,7 +167,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle refund event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleRefund(array $payload): void
     {
@@ -185,7 +180,7 @@ class HandleRevenueCatWebhook
     /**
      * Handle subscription period changed event.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     protected function handleSubscriptionPeriodChanged(array $payload): void
     {
