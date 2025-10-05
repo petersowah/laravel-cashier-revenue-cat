@@ -89,8 +89,13 @@ You can publish the config file with:
 ```bash
 php artisan vendor:publish --tag=cashier-revenue-cat-config
 ```
-
 This will create a `config/cashier-revenue-cat.php` file in your config folder.
+
+Next, publish migrations with:
+```bash
+php artisan vendor:publish --tag=cashier-revenue-cat-migrations
+```
+This will create migration files in the `database/migrations` folder in your project.
 
 ### Environment Variables
 
@@ -492,17 +497,42 @@ REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
 
    After publishing, the webhook route will use your published controller at `App\Http\Controllers\RevenueCat\WebhookController`, which will dispatch the webhook event to your configured handler. You can customize both the controller and handler to implement your specific webhook handling logic.
 
-5. The package automatically handles the following webhook events:
-- INITIAL_PURCHASE
-- RENEWAL
-- CANCELLATION
-- NON_RENEWING_PURCHASE
-- SUBSCRIPTION_PAUSED
-- SUBSCRIPTION_RESUMED
-- PRODUCT_CHANGE
-- BILLING_ISSUE
-- REFUND
-- SUBSCRIPTION_PERIOD_CHANGED
+5. The package does not automatically handle webhook events. You must implement your own webhook handler to handle the events. See example below:
+```php
+protected function handleInitialPurchase(array $payload): void
+    {
+        // Handle initial purchase
+        Log::info('Handling initial purchase', ['payload' => $payload]);
+
+        $appUserId = $payload['event']['app_user_id'];
+
+        $customer = RevenueCat::getCustomer($appUserId);
+
+        $user = User::query()
+            ->where('email', $customer['id'])
+            ->firstOrFail();
+
+        $user->customer()
+        ->firstOrCreate(
+            [
+                'email' => $customer['id'],
+            ], [
+            'email' => $customer['id'],
+            'revenuecat_id' => $appUserId,
+        ]);
+
+        $user->subscriptions()
+        ->create([
+            'product_id' => $payload['event']['product_id'],
+            'status' => SubscriptionStatus::fromWebhookEvent($payload['event']),
+            'name' => $payload['event']['entitlement_ids'][0],
+            'price' => $payload['event']['price'] * 100, // always store currency in cents or lowest denominations
+            'store' => $payload['event']['store'],
+            'current_period_started_at' => Carbon::createFromTimestampMs($payload['event']['purchased_at_ms']),
+            'current_period_ended_at' => Carbon::createFromTimestampMs($payload['event']['expiration_at_ms']),
+        ]);
+    }
+```
 
 6. Listen to webhook events in your application:
 

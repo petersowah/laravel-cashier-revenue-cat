@@ -5,6 +5,7 @@ namespace PeterSowah\LaravelCashierRevenueCat\Models;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use LogicException;
 use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
 
@@ -14,17 +15,17 @@ use PeterSowah\LaravelCashierRevenueCat\Enums\SubscriptionStatus;
  * @property SubscriptionStatus $status
  * @property string $price
  * @property string $product_id
- * @property \Carbon\Carbon|null $current_period_started_at
- * @property \Carbon\Carbon|null $current_period_ended_at
- * @property \Carbon\Carbon|null $trial_started_at
- * @property \Carbon\Carbon|null $trial_ended_at
- * @property \Carbon\Carbon|null $canceled_at
- * @property \Carbon\Carbon|null $ended_at
- * @property \Carbon\Carbon|null $paused_at
- * @property \Carbon\Carbon|null $resumed_at
+ * @property Carbon|null $current_period_started_at
+ * @property Carbon|null $current_period_ended_at
+ * @property Carbon|null $trial_started_at
+ * @property Carbon|null $trial_ended_at
+ * @property Carbon|null $canceled_at
+ * @property Carbon|null $ended_at
+ * @property Carbon|null $paused_at
+ * @property Carbon|null $resumed_at
  * @property array|null $metadata
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Subscription extends Model
 {
@@ -45,6 +46,7 @@ class Subscription extends Model
         'paused_at',
         'resumed_at',
         'metadata',
+        'store'
     ];
 
     protected $casts = [
@@ -58,10 +60,6 @@ class Subscription extends Model
         'resumed_at' => 'datetime',
         'metadata' => 'array',
         'status' => SubscriptionStatus::class,
-        'name' => 'string',
-        'revenuecat_id' => 'string',
-        'price' => 'string',
-        'product_id' => 'string',
     ];
 
     protected $attributes = [
@@ -71,7 +69,7 @@ class Subscription extends Model
     /**
      * Get the subscription's billable model.
      */
-    public function billable()
+    public function billable(): MorphTo
     {
         return $this->morphTo();
     }
