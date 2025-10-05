@@ -14,12 +14,16 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
     public function handle(): void
     {
-        $this->publishWebhookHandler();
-        $this->publishWebhookController();
-        $this->updateConfig();
+        $handlerPublished = $this->publishWebhookHandler();
+        $controllerPublished = $this->publishWebhookController();
+        
+        // Only update config if at least one file was published
+        if ($handlerPublished || $controllerPublished) {
+            $this->updateConfig();
+        }
     }
 
-    protected function publishWebhookHandler(): void
+    protected function publishWebhookHandler(): bool
     {
         $targetPath = app_path('Listeners/HandleRevenueCatWebhook.php');
         $sourcePath = __DIR__.'/../Listeners/HandleRevenueCatWebhook.php';
@@ -30,20 +34,18 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
         if (File::exists($targetPath)) {
             if (! $this->confirm('The webhook handler file already exists. Do you want to overwrite it?')) {
-                return;
+                $this->info('Skipping webhook handler publication.');
+                return false;
             }
         }
 
         if (! File::exists($sourcePath)) {
             $this->error('Source webhook handler file not found. Please ensure the package is properly installed.');
-
-            return;
+            return false;
         }
 
-        // Read the source file content
         $content = File::get($sourcePath);
 
-        // Update the namespace from package namespace to App\Listeners
         $content = str_replace(
             'namespace PeterSowah\LaravelCashierRevenueCat\Listeners;',
             'namespace App\Listeners;',
@@ -52,9 +54,10 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
         File::put($targetPath, $content);
         $this->info('Webhook handler published successfully!');
+        return true;
     }
 
-    protected function publishWebhookController(): void
+    protected function publishWebhookController(): bool
     {
         $targetPath = app_path('Http/Controllers/RevenueCat/RevenueCatWebhookController.php');
         $sourcePath = __DIR__.'/../Http/Controllers/RevenueCatWebhookController.php';
@@ -65,20 +68,18 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
         if (File::exists($targetPath)) {
             if (! $this->confirm('The webhook controller file already exists. Do you want to overwrite it?')) {
-                return;
+                $this->info('Skipping webhook controller publication.');
+                return false;
             }
         }
 
         if (! File::exists($sourcePath)) {
             $this->error('Source webhook controller file not found. Please ensure the package is properly installed.');
-
-            return;
+            return false;
         }
 
-        // Read the source file content
         $content = File::get($sourcePath);
 
-        // Update the namespace from package namespace to App\Http\Controllers\RevenueCat
         $content = str_replace(
             'namespace PeterSowah\LaravelCashierRevenueCat\Http\Controllers;',
             'namespace App\Http\Controllers\RevenueCat;',
@@ -87,6 +88,7 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
         File::put($targetPath, $content);
         $this->info('Webhook controller published successfully!');
+        return true;
     }
 
     protected function updateConfig(): void
@@ -110,7 +112,6 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
         File::put($configPath, $config);
         $this->info('Configuration updated to use the published controller!');
 
-        // Clear caches to ensure changes take effect
         $this->info('Clearing caches...');
         $this->call('config:clear');
         $this->info('Caches cleared successfully!');
