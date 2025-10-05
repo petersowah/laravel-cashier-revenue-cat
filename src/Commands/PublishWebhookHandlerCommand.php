@@ -3,9 +3,10 @@
 namespace PeterSowah\LaravelCashierRevenueCat\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Support\Facades\File;
 
-class PublishWebhookHandlerCommand extends Command
+class PublishWebhookHandlerCommand extends Command implements Isolatable
 {
     protected $signature = 'cashier-revenue-cat:publish-webhook-handler';
 
@@ -109,10 +110,9 @@ class PublishWebhookHandlerCommand extends Command
         File::put($configPath, $config);
         $this->info('Configuration updated to use the published controller!');
 
-        // Clear route cache
-        $this->call('route:clear');
+        // Clear caches to ensure changes take effect
+        $this->info('Clearing caches...');
         $this->call('config:clear');
-        $this->call('cache:clear');
-        $this->info('Route cache cleared!');
+        $this->info('Caches cleared successfully!');
     }
 }
