@@ -16,7 +16,7 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
     {
         $handlerPublished = $this->publishWebhookHandler();
         $controllerPublished = $this->publishWebhookController();
-        
+
         // Only update config if at least one file was published
         if ($handlerPublished || $controllerPublished) {
             $this->updateConfig();
@@ -35,12 +35,14 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
         if (File::exists($targetPath)) {
             if (! $this->confirm('The webhook handler file already exists. Do you want to overwrite it?')) {
                 $this->info('Skipping webhook handler publication.');
+
                 return false;
             }
         }
 
         if (! File::exists($sourcePath)) {
             $this->error('Source webhook handler file not found. Please ensure the package is properly installed.');
+
             return false;
         }
 
@@ -54,6 +56,7 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
         File::put($targetPath, $content);
         $this->info('Webhook handler published successfully!');
+
         return true;
     }
 
@@ -69,12 +72,14 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
         if (File::exists($targetPath)) {
             if (! $this->confirm('The webhook controller file already exists. Do you want to overwrite it?')) {
                 $this->info('Skipping webhook controller publication.');
+
                 return false;
             }
         }
 
         if (! File::exists($sourcePath)) {
             $this->error('Source webhook controller file not found. Please ensure the package is properly installed.');
+
             return false;
         }
 
@@ -88,6 +93,7 @@ class PublishWebhookHandlerCommand extends Command implements Isolatable
 
         File::put($targetPath, $content);
         $this->info('Webhook controller published successfully!');
+
         return true;
     }
 
